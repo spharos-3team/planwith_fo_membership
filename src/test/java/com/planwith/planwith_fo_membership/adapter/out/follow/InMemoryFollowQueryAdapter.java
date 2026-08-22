@@ -15,6 +15,10 @@ public class InMemoryFollowQueryAdapter implements FollowQueryPort {
 		followings.add(key(followerUuid, creatorUuid));
 	}
 
+	public void clear() {
+		followings.clear();
+	}
+
 	@Override
 	public boolean isFollowing(MemberUuid followerUuid, CreatorUuid creatorUuid) {
 		return followings.contains(key(followerUuid, creatorUuid));
