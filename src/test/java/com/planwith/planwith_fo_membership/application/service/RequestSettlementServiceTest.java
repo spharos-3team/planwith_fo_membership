@@ -17,6 +17,7 @@ import com.planwith.planwith_fo_membership.application.query.RequestSettlementRe
 import com.planwith.planwith_fo_membership.domain.event.MembershipEventTypes;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidRevenueException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidSettlementStateException;
+import com.planwith.planwith_fo_membership.domain.exception.SettlementAmountExceededException;
 import com.planwith.planwith_fo_membership.domain.model.MembershipRevenue;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSettlement;
 import com.planwith.planwith_fo_membership.domain.model.SettlementStatus;
@@ -78,7 +79,7 @@ class RequestSettlementServiceTest {
 		service.request(new RequestSettlementCommand(creatorUuid, 30_000L, requestedAt));
 
 		assertThatThrownBy(() -> service.request(new RequestSettlementCommand(creatorUuid, 30_000L, requestedAt)))
-				.isInstanceOf(InvalidRevenueException.class)
+				.isInstanceOf(SettlementAmountExceededException.class)
 				.hasMessage("정산 가능 금액을 초과할 수 없습니다.");
 		assertThat(settlementPort.settlements()).hasSize(1);
 		assertThat(outboxPort.messages()).hasSize(1);

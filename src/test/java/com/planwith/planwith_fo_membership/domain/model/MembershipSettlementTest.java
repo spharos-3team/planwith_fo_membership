@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.planwith.planwith_fo_membership.domain.exception.InvalidSettlementStateException;
+import com.planwith.planwith_fo_membership.domain.exception.SettlementAlreadyProcessedException;
 import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
@@ -64,6 +64,6 @@ class MembershipSettlementTest {
 		);
 
 		assertThatThrownBy(() -> requested.pay(adminUuid, Instant.parse("2026-08-22T00:02:00Z")))
-				.isInstanceOf(InvalidSettlementStateException.class);
+				.isInstanceOf(SettlementAlreadyProcessedException.class);
 	}
 }

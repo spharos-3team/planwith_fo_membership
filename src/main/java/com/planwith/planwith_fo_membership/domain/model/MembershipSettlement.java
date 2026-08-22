@@ -8,6 +8,7 @@ import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.SettlementUuid;
+import com.planwith.planwith_fo_membership.domain.service.SettlementPolicy;
 
 public final class MembershipSettlement {
 
@@ -96,9 +97,7 @@ public final class MembershipSettlement {
 	}
 
 	public MembershipSettlement approve(AdminUuid adminUuid, Instant approvedAt) {
-		if (settlementStatus != SettlementStatus.REQUESTED) {
-			throw new InvalidSettlementStateException("신청된 정산만 승인할 수 있습니다.");
-		}
+		SettlementPolicy.requireCanApprove(settlementStatus);
 		return new MembershipSettlement(
 				settlementUuid,
 				creatorUuid,
@@ -114,9 +113,7 @@ public final class MembershipSettlement {
 	}
 
 	public MembershipSettlement reject(AdminUuid adminUuid, String reason) {
-		if (settlementStatus != SettlementStatus.REQUESTED) {
-			throw new InvalidSettlementStateException("신청된 정산만 거절할 수 있습니다.");
-		}
+		SettlementPolicy.requireCanReject(settlementStatus);
 		return new MembershipSettlement(
 				settlementUuid,
 				creatorUuid,
@@ -132,9 +129,7 @@ public final class MembershipSettlement {
 	}
 
 	public MembershipSettlement pay(AdminUuid adminUuid, Instant paidAt) {
-		if (settlementStatus != SettlementStatus.APPROVED) {
-			throw new InvalidSettlementStateException("승인된 정산만 지급 완료할 수 있습니다.");
-		}
+		SettlementPolicy.requireCanPay(settlementStatus);
 		return new MembershipSettlement(
 				settlementUuid,
 				creatorUuid,

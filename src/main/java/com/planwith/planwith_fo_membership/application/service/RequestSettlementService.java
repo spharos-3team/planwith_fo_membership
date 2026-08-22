@@ -25,6 +25,7 @@ import com.planwith.planwith_fo_membership.domain.exception.InvalidSettlementSta
 import com.planwith.planwith_fo_membership.domain.model.MembershipRevenue;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSettlement;
 import com.planwith.planwith_fo_membership.domain.model.vo.SettlementUuid;
+import com.planwith.planwith_fo_membership.domain.service.AccessPolicy;
 import com.planwith.planwith_fo_membership.domain.service.SettlementPolicy;
 
 @Service
@@ -60,9 +61,8 @@ public class RequestSettlementService implements RequestSettlementUseCase {
 		}
 		MembershipRevenue revenue = loadRevenuePort.findByCreator(command.creatorUuid())
 				.orElseThrow(() -> new InvalidRevenueException("정산 가능한 수익이 없습니다."));
-		if (!SettlementPolicy.canRequest(command.settlementAmount(), revenue.availableRevenue())) {
-			throw new InvalidRevenueException("정산 가능 금액을 초과할 수 없습니다.");
-		}
+		AccessPolicy.requireCreator(command.creatorUuid(), revenue.creatorUuid());
+		SettlementPolicy.requireCanRequest(command.settlementAmount(), revenue.availableRevenue());
 		Instant requestedAt = command.requestedAt() == null ? Instant.now() : command.requestedAt();
 		MembershipRevenue reserved = revenue.reserve(command.settlementAmount());
 		saveRevenuePort.save(reserved);

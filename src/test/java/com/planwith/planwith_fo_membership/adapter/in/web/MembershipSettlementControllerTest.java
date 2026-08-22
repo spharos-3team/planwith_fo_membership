@@ -19,7 +19,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import com.planwith.planwith_fo_membership.adapter.in.web.exception.GlobalExceptionHandler;
 import com.planwith.planwith_fo_membership.application.port.in.command.RequestSettlementUseCase;
 import com.planwith.planwith_fo_membership.application.query.RequestSettlementResult;
-import com.planwith.planwith_fo_membership.domain.exception.InvalidRevenueException;
+import com.planwith.planwith_fo_membership.domain.exception.SettlementAmountExceededException;
 import com.planwith.planwith_fo_membership.domain.model.SettlementStatus;
 import com.planwith.planwith_fo_membership.domain.model.vo.SettlementUuid;
 
@@ -69,7 +69,7 @@ class MembershipSettlementControllerTest {
 	@Test
 	void requestSettlementReturnsConflictWhenAmountExceedsAvailable() throws Exception {
 		when(requestSettlementUseCase.request(any()))
-				.thenThrow(new InvalidRevenueException("정산 가능 금액을 초과할 수 없습니다."));
+				.thenThrow(new SettlementAmountExceededException("정산 가능 금액을 초과할 수 없습니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/me/settlements")
 						.header("X-Member-UUID", "22222222-2222-2222-2222-222222222222")
@@ -80,7 +80,7 @@ class MembershipSettlementControllerTest {
 								}
 								"""))
 				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.code").value("INVALID_REVENUE"));
+				.andExpect(jsonPath("$.code").value("SETTLEMENT_AMOUNT_EXCEEDED"));
 	}
 
 	@Test

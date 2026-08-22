@@ -26,11 +26,12 @@ import com.planwith.planwith_fo_membership.application.port.out.SaveSettlementPo
 import com.planwith.planwith_fo_membership.application.query.ProcessSettlementResult;
 import com.planwith.planwith_fo_membership.domain.event.MembershipEventTypes;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidRevenueException;
-import com.planwith.planwith_fo_membership.domain.exception.InvalidSettlementStateException;
+import com.planwith.planwith_fo_membership.domain.exception.SettlementAlreadyProcessedException;
 import com.planwith.planwith_fo_membership.domain.exception.SettlementNotFoundException;
 import com.planwith.planwith_fo_membership.domain.model.MembershipRevenue;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSettlement;
 import com.planwith.planwith_fo_membership.domain.model.vo.SettlementUuid;
+import com.planwith.planwith_fo_membership.domain.service.AccessPolicy;
 
 @Service
 public class ProcessSettlementService implements
@@ -66,6 +67,7 @@ public class ProcessSettlementService implements
 	@Override
 	@Transactional
 	public ProcessSettlementResult approve(ApproveSettlementCommand command) {
+		AccessPolicy.requireAdmin(command.adminUuid());
 		MembershipSettlement settlement = requireSettlement(command.settlementUuid());
 		try {
 			Instant processedAt = command.processedAt() == null ? Instant.now() : command.processedAt();
@@ -79,7 +81,7 @@ public class ProcessSettlementService implements
 					approved.settlementStatus()
 			);
 			return toResult(approved, revenue);
-		} catch (InvalidSettlementStateException exception) {
+		} catch (SettlementAlreadyProcessedException exception) {
 			log.warn(
 					"ProcessSettlementService : approve : 잘못된 정산 승인 요청 - settlementUuid={}, status={}",
 					settlement.settlementUuid(),
@@ -92,6 +94,7 @@ public class ProcessSettlementService implements
 	@Override
 	@Transactional
 	public ProcessSettlementResult reject(RejectSettlementCommand command) {
+		AccessPolicy.requireAdmin(command.adminUuid());
 		MembershipSettlement settlement = requireSettlement(command.settlementUuid());
 		try {
 			MembershipSettlement rejected = settlement.reject(command.adminUuid(), command.rejectReason());
@@ -105,7 +108,7 @@ public class ProcessSettlementService implements
 					released.availableRevenue()
 			);
 			return toResult(rejected, released);
-		} catch (InvalidSettlementStateException exception) {
+		} catch (SettlementAlreadyProcessedException exception) {
 			log.warn(
 					"ProcessSettlementService : reject : 잘못된 정산 거절 요청 - settlementUuid={}, status={}",
 					settlement.settlementUuid(),
@@ -118,6 +121,7 @@ public class ProcessSettlementService implements
 	@Override
 	@Transactional
 	public ProcessSettlementResult pay(PaySettlementCommand command) {
+		AccessPolicy.requireAdmin(command.adminUuid());
 		MembershipSettlement settlement = requireSettlement(command.settlementUuid());
 		try {
 			Instant processedAt = command.processedAt() == null ? Instant.now() : command.processedAt();
@@ -133,7 +137,7 @@ public class ProcessSettlementService implements
 					confirmed.settledRevenue()
 			);
 			return toResult(paid, confirmed);
-		} catch (InvalidSettlementStateException exception) {
+		} catch (SettlementAlreadyProcessedException exception) {
 			log.warn(
 					"ProcessSettlementService : pay : 잘못된 정산 지급 요청 - settlementUuid={}, status={}",
 					settlement.settlementUuid(),

@@ -26,6 +26,7 @@ import com.planwith.planwith_fo_membership.domain.exception.InvalidSubscriptionS
 import com.planwith.planwith_fo_membership.domain.exception.MembershipNotFoundException;
 import com.planwith.planwith_fo_membership.domain.model.Membership;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSubscription;
+import com.planwith.planwith_fo_membership.domain.service.AccessPolicy;
 import com.planwith.planwith_fo_membership.domain.service.SubscriptionPolicy;
 
 @Service
@@ -61,12 +62,8 @@ public class CancelSubscriptionService implements CancelSubscriptionUseCase {
 	public CancelSubscriptionResult cancel(CancelSubscriptionCommand command) {
 		MembershipSubscription subscription = loadSubscriptionPort.findByUuid(command.subscriptionUuid())
 				.orElseThrow(() -> new InvalidSubscriptionStateException("구독 정보를 찾을 수 없습니다."));
-		if (!subscription.memberUuid().equals(command.memberUuid())) {
-			throw new InvalidSubscriptionStateException("본인 구독만 해지할 수 있습니다.");
-		}
-		if (!SubscriptionPolicy.canDeactivate(subscription.status())) {
-			throw new InvalidSubscriptionStateException("이미 해지되었거나 만료된 구독입니다.");
-		}
+		AccessPolicy.requireMember(command.memberUuid(), subscription.memberUuid(), "본인 구독만 해지할 수 있습니다.");
+		SubscriptionPolicy.requireCanDeactivate(subscription.status());
 		Membership membership = loadMembershipPort.findByUuid(subscription.membershipUuid())
 				.orElseThrow(() -> new MembershipNotFoundException("멤버십을 찾을 수 없습니다."));
 		Instant canceledAt = command.canceledAt() == null ? Instant.now() : command.canceledAt();

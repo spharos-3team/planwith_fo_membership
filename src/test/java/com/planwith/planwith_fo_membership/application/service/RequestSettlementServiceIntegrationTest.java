@@ -23,7 +23,7 @@ import com.planwith.planwith_fo_membership.application.query.GetRevenueQuery;
 import com.planwith.planwith_fo_membership.application.query.RequestSettlementResult;
 import com.planwith.planwith_fo_membership.application.query.RevenueResult;
 import com.planwith.planwith_fo_membership.domain.event.MembershipEventTypes;
-import com.planwith.planwith_fo_membership.domain.exception.InvalidRevenueException;
+import com.planwith.planwith_fo_membership.domain.exception.SettlementAmountExceededException;
 import com.planwith.planwith_fo_membership.domain.model.MembershipRevenue;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSettlement;
 import com.planwith.planwith_fo_membership.domain.model.SettlementStatus;
@@ -88,7 +88,7 @@ class RequestSettlementServiceIntegrationTest {
 
 		assertThatThrownBy(() -> requestSettlementUseCase.request(
 				new RequestSettlementCommand(creatorUuid, 30_000L, Instant.parse("2026-08-22T01:01:00Z"))
-		)).isInstanceOf(InvalidRevenueException.class)
+		)).isInstanceOf(SettlementAmountExceededException.class)
 				.hasMessage("정산 가능 금액을 초과할 수 없습니다.");
 	}
 

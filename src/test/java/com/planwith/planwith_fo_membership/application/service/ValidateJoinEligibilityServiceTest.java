@@ -15,7 +15,7 @@ import com.planwith.planwith_fo_membership.application.command.ValidateJoinEligi
 import com.planwith.planwith_fo_membership.application.query.ValidateJoinEligibilityResult;
 import com.planwith.planwith_fo_membership.domain.exception.DuplicateSubscriptionException;
 import com.planwith.planwith_fo_membership.domain.exception.FollowRequiredException;
-import com.planwith.planwith_fo_membership.domain.exception.InvalidMembershipStateException;
+import com.planwith.planwith_fo_membership.domain.exception.MembershipNotApprovedException;
 import com.planwith.planwith_fo_membership.domain.exception.MembershipNotFoundException;
 import com.planwith.planwith_fo_membership.domain.model.Membership;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSubscription;
@@ -74,7 +74,7 @@ class ValidateJoinEligibilityServiceTest {
 		followQueryPort.follow(memberUuid, creatorUuid);
 
 		assertThatThrownBy(() -> service.validate(command()))
-				.isInstanceOf(InvalidMembershipStateException.class)
+				.isInstanceOf(MembershipNotApprovedException.class)
 				.hasMessage("승인된 멤버십만 가입할 수 있습니다.");
 	}
 

@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.planwith.planwith_fo_membership.domain.exception.InvalidMembershipStateException;
-import com.planwith.planwith_fo_membership.domain.exception.InvalidSubscriptionStateException;
+import com.planwith.planwith_fo_membership.domain.exception.MembershipNotApprovedException;
 import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
@@ -74,7 +74,7 @@ class MembershipTest {
 				new SubscriptionUuid(UUID.fromString("33333333-3333-3333-3333-333333333333")),
 				new MemberUuid(UUID.fromString("11111111-1111-1111-1111-111111111111")),
 				Instant.parse("2026-08-22T00:01:00Z")
-		)).isInstanceOf(InvalidSubscriptionStateException.class);
+		)).isInstanceOf(MembershipNotApprovedException.class);
 	}
 
 	private Membership pending() {

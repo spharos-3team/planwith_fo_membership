@@ -12,8 +12,6 @@ import com.planwith.planwith_fo_membership.application.port.out.LoadMembershipPo
 import com.planwith.planwith_fo_membership.application.query.MemberGradeResult;
 import com.planwith.planwith_fo_membership.application.query.ValidateMembershipApplicationResult;
 import com.planwith.planwith_fo_membership.domain.exception.DuplicateMembershipApplicationException;
-import com.planwith.planwith_fo_membership.domain.exception.InsufficientMembershipGradeException;
-import com.planwith.planwith_fo_membership.domain.exception.InvalidMembershipPriceException;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
 import com.planwith.planwith_fo_membership.domain.service.MembershipApplicationPolicy;
 
@@ -48,14 +46,7 @@ public class ValidateMembershipApplicationService implements ValidateMembershipA
 				grade.gradeCode(),
 				grade.gradeLevel()
 		);
-		if (!MembershipApplicationPolicy.canOpenMembership(grade.gradeCode(), grade.gradeLevel())) {
-			log.warn(
-					"ValidateMembershipApplicationService : validate : Explorer 미만 등급은 멤버십 개설이 불가하다 - creatorUuid={}, gradeCode={}",
-					command.creatorUuid(),
-					grade.gradeCode()
-			);
-			throw new InsufficientMembershipGradeException("Explorer 이상 등급만 멤버십을 개설할 수 있습니다.");
-		}
+		MembershipApplicationPolicy.requireEligibleGrade(grade.gradeCode(), grade.gradeLevel());
 		if (loadMembershipPort.findOpenByCreator(command.creatorUuid())
 				.filter(MembershipApplicationPolicy::isDuplicateApplication)
 				.isPresent()) {
@@ -80,11 +71,6 @@ public class ValidateMembershipApplicationService implements ValidateMembershipA
 	}
 
 	private static void validatePrice(ValidateMembershipApplicationCommand command) {
-		if (!MembershipApplicationPolicy.isPositivePrice(command.monthlyPrice())) {
-			throw new InvalidMembershipPriceException("월 구독 금액은 0보다 커야 합니다.");
-		}
-		if (!MembershipApplicationPolicy.isTokenPriceUnit(command.priceUnit())) {
-			throw new InvalidMembershipPriceException("멤버십 가격 단위는 TOKEN 이어야 합니다.");
-		}
+		MembershipApplicationPolicy.requireValidPrice(command.monthlyPrice(), command.priceUnit());
 	}
 }

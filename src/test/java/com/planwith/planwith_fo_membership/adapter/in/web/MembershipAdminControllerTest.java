@@ -90,6 +90,14 @@ class MembershipAdminControllerTest {
 	}
 
 	@Test
+	void returnsForbiddenWhenAdminHeaderIsMissing() throws Exception {
+		mockMvc.perform(post("/api/planwith-fo-membership/admin/memberships/{membershipUuid}/approve",
+						"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.code").value("FORBIDDEN_ADMIN"));
+	}
+
+	@Test
 	void alreadyProcessedMembershipReturnsConflict() throws Exception {
 		when(approveMembershipUseCase.approve(any()))
 				.thenThrow(new InvalidMembershipStateException("대기 중인 멤버십만 승인할 수 있습니다."));

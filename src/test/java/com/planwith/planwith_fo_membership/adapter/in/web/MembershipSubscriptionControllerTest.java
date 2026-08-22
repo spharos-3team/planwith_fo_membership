@@ -25,7 +25,10 @@ import com.planwith.planwith_fo_membership.application.query.StartTokenPaymentRe
 import com.planwith.planwith_fo_membership.application.query.ValidateJoinEligibilityResult;
 import com.planwith.planwith_fo_membership.domain.exception.DuplicateSubscriptionException;
 import com.planwith.planwith_fo_membership.domain.exception.FollowRequiredException;
-import com.planwith.planwith_fo_membership.domain.exception.InvalidMembershipStateException;
+import com.planwith.planwith_fo_membership.domain.exception.ForbiddenCreatorException;
+import com.planwith.planwith_fo_membership.domain.exception.MembershipNotApprovedException;
+import com.planwith.planwith_fo_membership.domain.exception.TokenInsufficientException;
+import com.planwith.planwith_fo_membership.domain.exception.TokenPaymentFailedException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidSubscriptionStateException;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
@@ -113,20 +116,20 @@ class MembershipSubscriptionControllerTest {
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.code").value("DUPLICATE_SUBSCRIPTION"));
+				.andExpect(jsonPath("$.code").value("MEMBERSHIP_ALREADY_SUBSCRIBED"));
 	}
 
 	@Test
 	void returnsConflictWhenMembershipIsNotApproved() throws Exception {
 		when(validateJoinEligibilityUseCase.validate(any()))
-				.thenThrow(new InvalidMembershipStateException("승인된 멤버십만 가입할 수 있습니다."));
+				.thenThrow(new MembershipNotApprovedException("승인된 멤버십만 가입할 수 있습니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/validate")
 						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.code").value("INVALID_MEMBERSHIP_STATE"));
+				.andExpect(jsonPath("$.code").value("MEMBERSHIP_NOT_APPROVED"));
 	}
 
 	@Test
@@ -164,6 +167,32 @@ class MembershipSubscriptionControllerTest {
 	}
 
 	@Test
+	void startTokenPaymentReturnsConflictWhenTokenIsInsufficient() throws Exception {
+		when(startTokenPaymentUseCase.start(any()))
+				.thenThrow(new TokenInsufficientException("토큰 잔액이 부족합니다."));
+
+		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/payments")
+						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(validBody()))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.code").value("TOKEN_INSUFFICIENT"));
+	}
+
+	@Test
+	void startTokenPaymentReturnsConflictWhenTokenPaymentFailed() throws Exception {
+		when(startTokenPaymentUseCase.start(any()))
+				.thenThrow(new TokenPaymentFailedException("토큰 결제에 실패했습니다."));
+
+		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/payments")
+						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(validBody()))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.code").value("TOKEN_PAYMENT_FAILED"));
+	}
+
+	@Test
 	void cancelSubscriptionReturnsInactiveResult() throws Exception {
 		when(cancelSubscriptionUseCase.cancel(any())).thenReturn(new CancelSubscriptionResult(
 				SubscriptionUuid.from("55555555-5555-5555-5555-555555555555"),
@@ -188,6 +217,17 @@ class MembershipSubscriptionControllerTest {
 						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111"))
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.code").value("INVALID_SUBSCRIPTION_STATE"));
+	}
+
+	@Test
+	void cancelSubscriptionReturnsForbiddenWhenMemberDoesNotOwn() throws Exception {
+		when(cancelSubscriptionUseCase.cancel(any()))
+				.thenThrow(new ForbiddenCreatorException("본인 구독만 해지할 수 있습니다."));
+
+		mockMvc.perform(post("/api/planwith-fo-membership/memberships/me/subscriptions/55555555-5555-5555-5555-555555555555/cancel")
+						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111"))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.code").value("FORBIDDEN_CREATOR"));
 	}
 
 	@Test

@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.planwith.planwith_fo_membership.domain.exception.InvalidRevenueException;
+import com.planwith.planwith_fo_membership.domain.exception.SettlementAmountExceededException;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
 
@@ -50,7 +50,7 @@ class MembershipRevenueTest {
 				.record(1000L);
 
 		assertThatThrownBy(() -> revenue.settle(1001L))
-				.isInstanceOf(InvalidRevenueException.class);
+				.isInstanceOf(SettlementAmountExceededException.class);
 	}
 
 	@Test
@@ -78,7 +78,7 @@ class MembershipRevenueTest {
 				.reserve(30_000L);
 
 		assertThatThrownBy(() -> revenue.reserve(30_000L))
-				.isInstanceOf(InvalidRevenueException.class)
+				.isInstanceOf(SettlementAmountExceededException.class)
 				.hasMessage("정산 가능 금액을 초과할 수 없습니다.");
 	}
 
