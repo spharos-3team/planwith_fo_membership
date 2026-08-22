@@ -19,7 +19,7 @@ import com.planwith.planwith_fo_membership.application.command.RequestSettlement
 import com.planwith.planwith_fo_membership.application.query.ProcessSettlementResult;
 import com.planwith.planwith_fo_membership.application.query.RequestSettlementResult;
 import com.planwith.planwith_fo_membership.domain.event.MembershipEventTypes;
-import com.planwith.planwith_fo_membership.domain.exception.InvalidSettlementStateException;
+import com.planwith.planwith_fo_membership.domain.exception.SettlementAlreadyProcessedException;
 import com.planwith.planwith_fo_membership.domain.exception.SettlementNotFoundException;
 import com.planwith.planwith_fo_membership.domain.model.MembershipRevenue;
 import com.planwith.planwith_fo_membership.domain.model.SettlementStatus;
@@ -125,14 +125,14 @@ class ProcessSettlementServiceTest {
 
 		assertThatThrownBy(() -> processSettlementService.pay(
 				new PaySettlementCommand(settlementUuid, adminUuid, processedAt)
-		)).isInstanceOf(InvalidSettlementStateException.class);
+		)).isInstanceOf(SettlementAlreadyProcessedException.class);
 
 		processSettlementService.approve(new ApproveSettlementCommand(settlementUuid, adminUuid, processedAt));
 		processSettlementService.pay(new PaySettlementCommand(settlementUuid, adminUuid, processedAt));
 
 		assertThatThrownBy(() -> processSettlementService.pay(
 				new PaySettlementCommand(settlementUuid, adminUuid, processedAt)
-		)).isInstanceOf(InvalidSettlementStateException.class);
+		)).isInstanceOf(SettlementAlreadyProcessedException.class);
 	}
 
 	@Test

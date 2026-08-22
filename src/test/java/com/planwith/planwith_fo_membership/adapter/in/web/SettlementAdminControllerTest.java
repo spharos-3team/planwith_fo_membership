@@ -21,7 +21,7 @@ import com.planwith.planwith_fo_membership.application.port.in.command.ApproveSe
 import com.planwith.planwith_fo_membership.application.port.in.command.PaySettlementUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.RejectSettlementUseCase;
 import com.planwith.planwith_fo_membership.application.query.ProcessSettlementResult;
-import com.planwith.planwith_fo_membership.domain.exception.InvalidSettlementStateException;
+import com.planwith.planwith_fo_membership.domain.exception.SettlementAlreadyProcessedException;
 import com.planwith.planwith_fo_membership.domain.model.SettlementStatus;
 import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
@@ -102,12 +102,19 @@ class SettlementAdminControllerTest {
 	@Test
 	void alreadyProcessedSettlementReturnsConflict() throws Exception {
 		when(approveSettlementUseCase.approve(any()))
-				.thenThrow(new InvalidSettlementStateException("신청된 정산만 승인할 수 있습니다."));
+				.thenThrow(new SettlementAlreadyProcessedException("신청된 정산만 승인할 수 있습니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/admin/settlements/{settlementUuid}/approve", SETTLEMENT_UUID)
 						.header("X-Admin-UUID", ADMIN_UUID))
 				.andExpect(status().isConflict())
-				.andExpect(jsonPath("$.code").value("INVALID_SETTLEMENT_STATE"));
+				.andExpect(jsonPath("$.code").value("SETTLEMENT_ALREADY_PROCESSED"));
+	}
+
+	@Test
+	void returnsForbiddenWhenAdminHeaderIsMissing() throws Exception {
+		mockMvc.perform(post("/api/planwith-fo-membership/admin/settlements/{settlementUuid}/approve", SETTLEMENT_UUID))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.code").value("FORBIDDEN_ADMIN"));
 	}
 
 	@Test

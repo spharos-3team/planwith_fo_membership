@@ -3,6 +3,7 @@ package com.planwith.planwith_fo_membership.domain.service;
 import java.time.Duration;
 import java.time.Instant;
 
+import com.planwith.planwith_fo_membership.domain.exception.InvalidSubscriptionStateException;
 import com.planwith.planwith_fo_membership.domain.model.SubscriptionStatus;
 
 public final class SubscriptionPolicy {
@@ -36,5 +37,11 @@ public final class SubscriptionPolicy {
 
 	public static boolean isDueToExpire(Instant startedAt, Instant now) {
 		return startedAt != null && now != null && !now.isBefore(startedAt.plus(DEFAULT_TERM));
+	}
+
+	public static void requireCanDeactivate(SubscriptionStatus status) {
+		if (!canDeactivate(status)) {
+			throw new InvalidSubscriptionStateException("이미 해지되었거나 만료된 구독입니다.");
+		}
 	}
 }

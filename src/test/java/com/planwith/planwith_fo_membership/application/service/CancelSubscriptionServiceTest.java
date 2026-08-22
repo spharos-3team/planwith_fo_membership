@@ -19,6 +19,7 @@ import com.planwith.planwith_fo_membership.application.query.CancelSubscriptionR
 import com.planwith.planwith_fo_membership.application.query.CheckContentAccessQuery;
 import com.planwith.planwith_fo_membership.application.query.ContentAccessResult;
 import com.planwith.planwith_fo_membership.domain.event.MembershipEventTypes;
+import com.planwith.planwith_fo_membership.domain.exception.ForbiddenCreatorException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidSubscriptionStateException;
 import com.planwith.planwith_fo_membership.domain.model.Entitlement;
 import com.planwith.planwith_fo_membership.domain.model.Membership;
@@ -129,7 +130,7 @@ class CancelSubscriptionServiceTest {
 				MemberUuid.from("33333333-3333-3333-3333-333333333333"),
 				subscriptionUuid,
 				canceledAt
-		))).isInstanceOf(InvalidSubscriptionStateException.class)
+		))).isInstanceOf(ForbiddenCreatorException.class)
 				.hasMessage("본인 구독만 해지할 수 있습니다.");
 		assertThat(subscriptionPort.findByUuid(subscriptionUuid).orElseThrow().status())
 				.isEqualTo(SubscriptionStatus.ACTIVE);

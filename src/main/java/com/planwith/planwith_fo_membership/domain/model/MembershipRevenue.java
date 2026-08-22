@@ -3,6 +3,7 @@ package com.planwith.planwith_fo_membership.domain.model;
 import java.util.Objects;
 
 import com.planwith.planwith_fo_membership.domain.exception.InvalidRevenueException;
+import com.planwith.planwith_fo_membership.domain.exception.SettlementAmountExceededException;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
 
@@ -78,7 +79,7 @@ public final class MembershipRevenue {
 			throw new InvalidRevenueException("정산 신청 금액은 0보다 커야 합니다.");
 		}
 		if (amount > availableRevenue) {
-			throw new InvalidRevenueException("정산 가능 금액을 초과할 수 없습니다.");
+			throw new SettlementAmountExceededException("정산 가능 금액을 초과할 수 없습니다.");
 		}
 		return new MembershipRevenue(
 				revenueUuid,
@@ -129,7 +130,7 @@ public final class MembershipRevenue {
 			throw new InvalidRevenueException("정산 금액은 0보다 커야 합니다.");
 		}
 		if (amount > availableRevenue) {
-			throw new InvalidRevenueException("정산 가능 금액을 초과할 수 없습니다.");
+			throw new SettlementAmountExceededException("정산 가능 금액을 초과할 수 없습니다.");
 		}
 		return new MembershipRevenue(
 				revenueUuid,

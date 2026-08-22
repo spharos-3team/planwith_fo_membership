@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 import com.planwith.planwith_fo_membership.domain.exception.InvalidSubscriptionStateException;
+import com.planwith.planwith_fo_membership.domain.exception.MembershipNotApprovedException;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.SubscriptionUuid;
@@ -45,7 +46,7 @@ public final class MembershipSubscription {
 			Instant startedAt
 	) {
 		if (!MembershipPolicy.canAcceptSubscription(membership)) {
-			throw new InvalidSubscriptionStateException("승인된 멤버십만 구독할 수 있습니다.");
+			throw new MembershipNotApprovedException("승인된 멤버십만 구독할 수 있습니다.");
 		}
 		return active(subscriptionUuid, membership.membershipUuid(), memberUuid, startedAt);
 	}

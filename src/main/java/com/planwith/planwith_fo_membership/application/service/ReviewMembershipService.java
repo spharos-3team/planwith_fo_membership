@@ -16,6 +16,7 @@ import com.planwith.planwith_fo_membership.domain.exception.InvalidMembershipSta
 import com.planwith.planwith_fo_membership.domain.exception.MembershipNotFoundException;
 import com.planwith.planwith_fo_membership.domain.model.Membership;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
+import com.planwith.planwith_fo_membership.domain.service.AccessPolicy;
 
 @Service
 public class ReviewMembershipService implements ApproveMembershipUseCase, RejectMembershipUseCase {
@@ -41,6 +42,7 @@ public class ReviewMembershipService implements ApproveMembershipUseCase, Reject
 				command.membershipUuid(),
 				command.adminUuid()
 		);
+		AccessPolicy.requireAdmin(command.adminUuid());
 		Membership membership = requireMembership(command.membershipUuid());
 		try {
 			Membership approved = membership.approve(command.adminUuid());
@@ -69,6 +71,7 @@ public class ReviewMembershipService implements ApproveMembershipUseCase, Reject
 				command.membershipUuid(),
 				command.adminUuid()
 		);
+		AccessPolicy.requireAdmin(command.adminUuid());
 		Membership membership = requireMembership(command.membershipUuid());
 		try {
 			Membership rejected = membership.reject(command.adminUuid(), command.rejectReason());

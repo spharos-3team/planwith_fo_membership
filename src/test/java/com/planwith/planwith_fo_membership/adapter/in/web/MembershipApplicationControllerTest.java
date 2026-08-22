@@ -137,6 +137,15 @@ class MembershipApplicationControllerTest {
 	}
 
 	@Test
+	void returnsForbiddenWhenMemberHeaderIsMissing() throws Exception {
+		mockMvc.perform(post("/api/planwith-fo-membership/memberships/applications/validate")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(validBody()))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.code").value("FORBIDDEN_CREATOR"));
+	}
+
+	@Test
 	void returnsForbiddenWhenGradeIsBelowExplorer() throws Exception {
 		when(validateMembershipApplicationUseCase.validate(any()))
 				.thenThrow(new InsufficientMembershipGradeException("Explorer 이상 등급만 멤버십을 개설할 수 있습니다."));
@@ -146,7 +155,7 @@ class MembershipApplicationControllerTest {
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isForbidden())
-				.andExpect(jsonPath("$.code").value("INSUFFICIENT_MEMBERSHIP_GRADE"));
+				.andExpect(jsonPath("$.code").value("MEMBERSHIP_GRADE_NOT_ELIGIBLE"));
 	}
 
 	private static String validBody() {
