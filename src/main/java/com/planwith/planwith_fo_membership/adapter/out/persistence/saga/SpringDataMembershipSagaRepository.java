@@ -17,4 +17,6 @@ interface SpringDataMembershipSagaRepository extends JpaRepository<MembershipSag
 			UUID creatorUuid,
 			Collection<MembershipSagaStatus> statuses
 	);
+
+	Optional<MembershipSagaJpaEntity> findFirstByPaymentUuidOrderByUpdatedAtDesc(UUID paymentUuid);
 }

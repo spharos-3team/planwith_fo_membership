@@ -5,8 +5,11 @@ import java.util.Optional;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSaga;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.PaymentUuid;
 
 public interface LoadMembershipSagaPort {
 
 	Optional<MembershipSaga> findInProgressByMemberAndCreator(MemberUuid memberUuid, CreatorUuid creatorUuid);
+
+	Optional<MembershipSaga> findByPaymentUuid(PaymentUuid paymentUuid);
 }

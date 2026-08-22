@@ -83,6 +83,8 @@ membership:
     consumer-enabled: ${MEMBERSHIP_KAFKA_CONSUMER_ENABLED:false}
     topics:
       token-deduction-requested: ${MEMBERSHIP_TOPIC_TOKEN_DEDUCTION_REQUESTED:planwith.token.deduction-requested}
+      token-deduction-succeeded: ${MEMBERSHIP_TOPIC_TOKEN_DEDUCTION_SUCCEEDED:planwith.token.deduction-succeeded}
+      token-deduction-failed: ${MEMBERSHIP_TOPIC_TOKEN_DEDUCTION_FAILED:planwith.token.deduction-failed}
       payment-completed: ${MEMBERSHIP_TOPIC_PAYMENT_COMPLETED:planwith.payment.completed}
       payment-failed: ${MEMBERSHIP_TOPIC_PAYMENT_FAILED:planwith.payment.failed}
       payment-refunded: ${MEMBERSHIP_TOPIC_PAYMENT_REFUNDED:planwith.payment.refunded}
