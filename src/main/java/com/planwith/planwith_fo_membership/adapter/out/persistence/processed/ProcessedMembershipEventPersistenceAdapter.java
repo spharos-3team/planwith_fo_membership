@@ -25,6 +25,18 @@ public class ProcessedMembershipEventPersistenceAdapter implements ProcessedMemb
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public boolean existsByPaymentUuidAndEventType(UUID paymentUuid, String eventType) {
+		return repository.existsByPaymentUuidAndEventType(paymentUuid, eventType);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean existsBySettlementUuidAndEventType(UUID settlementUuid, String eventType) {
+		return repository.existsBySettlementUuidAndEventType(settlementUuid, eventType);
+	}
+
+	@Override
 	@Transactional
 	public void save(ProcessedMembershipEvent event) {
 		repository.save(toEntity(event));
@@ -33,7 +45,7 @@ public class ProcessedMembershipEventPersistenceAdapter implements ProcessedMemb
 	@Override
 	@Transactional
 	public boolean saveIdempotent(ProcessedMembershipEvent event) {
-		if (existsByEventUuid(event.eventUuid())) {
+		if (alreadyProcessed(event.eventUuid(), event.paymentUuid(), event.settlementUuid(), event.eventType())) {
 			return false;
 		}
 		try {
@@ -49,6 +61,8 @@ public class ProcessedMembershipEventPersistenceAdapter implements ProcessedMemb
 				event.eventUuid(),
 				event.memberUuid().value(),
 				event.eventType(),
+				event.paymentUuid(),
+				event.settlementUuid(),
 				event.processedAt()
 		);
 	}

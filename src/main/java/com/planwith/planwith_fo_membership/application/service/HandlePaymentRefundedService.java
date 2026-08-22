@@ -1,6 +1,7 @@
 package com.planwith.planwith_fo_membership.application.service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,21 +28,32 @@ public class HandlePaymentRefundedService implements HandlePaymentRefundedUseCas
 	@Override
 	@Transactional
 	public void handle(HandlePaymentRefundedCommand command) {
-		if (processedMembershipEventPort.existsByEventUuid(command.eventUuid())) {
-			log.warn("HandlePaymentRefundedService : handle : 중복 PaymentRefunded 이벤트 무시 - eventUuid={}",
-					command.eventUuid());
+		UUID paymentUuid = command.paymentUuid() == null ? null : command.paymentUuid().value();
+		if (processedMembershipEventPort.alreadyProcessed(
+				command.eventUuid(),
+				paymentUuid,
+				null,
+				MembershipEventTypes.PAYMENT_REFUNDED
+		)) {
+			log.warn(
+					"HandlePaymentRefundedService : handle : 중복 PaymentRefunded 이벤트 무시 - eventUuid={}, paymentUuid={}",
+					command.eventUuid(),
+					command.paymentUuid()
+			);
 			return;
 		}
 		log.info(
-				"HandlePaymentRefundedService : handle : PaymentRefunded 수신, 환불 보상은 후속 Saga 이슈에서 구현한다 - eventUuid={}, memberUuid={}",
+				"HandlePaymentRefundedService : handle : PaymentRefunded 수신, 환불 보상은 후속 Saga에서 처리한다 - eventUuid={}, paymentUuid={}",
 				command.eventUuid(),
-				command.memberUuid()
+				command.paymentUuid()
 		);
 		Instant processedAt = command.refundedAt() == null ? Instant.now() : command.refundedAt();
 		processedMembershipEventPort.saveIdempotent(ProcessedMembershipEvent.recorded(
 				command.eventUuid(),
 				command.memberUuid(),
 				MembershipEventTypes.PAYMENT_REFUNDED,
+				paymentUuid,
+				null,
 				processedAt
 		));
 	}

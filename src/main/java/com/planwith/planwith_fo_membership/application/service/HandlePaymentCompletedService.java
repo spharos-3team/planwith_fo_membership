@@ -1,6 +1,7 @@
 package com.planwith.planwith_fo_membership.application.service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,21 +28,32 @@ public class HandlePaymentCompletedService implements HandlePaymentCompletedUseC
 	@Override
 	@Transactional
 	public void handle(HandlePaymentCompletedCommand command) {
-		if (processedMembershipEventPort.existsByEventUuid(command.eventUuid())) {
-			log.warn("HandlePaymentCompletedService : handle : 중복 PaymentCompleted 이벤트 무시 - eventUuid={}",
-					command.eventUuid());
+		UUID paymentUuid = command.paymentUuid() == null ? null : command.paymentUuid().value();
+		if (processedMembershipEventPort.alreadyProcessed(
+				command.eventUuid(),
+				paymentUuid,
+				null,
+				MembershipEventTypes.PAYMENT_COMPLETED
+		)) {
+			log.warn(
+					"HandlePaymentCompletedService : handle : 중복 PaymentCompleted 이벤트 무시 - eventUuid={}, paymentUuid={}",
+					command.eventUuid(),
+					command.paymentUuid()
+			);
 			return;
 		}
 		log.info(
-				"HandlePaymentCompletedService : handle : PaymentCompleted 수신, 구독 활성화는 후속 Saga 이슈에서 구현한다 - eventUuid={}, memberUuid={}",
+				"HandlePaymentCompletedService : handle : PaymentCompleted 수신, 구독 활성화는 TokenDeductionSucceeded Saga에서 처리한다 - eventUuid={}, paymentUuid={}",
 				command.eventUuid(),
-				command.memberUuid()
+				command.paymentUuid()
 		);
 		Instant processedAt = command.completedAt() == null ? Instant.now() : command.completedAt();
 		processedMembershipEventPort.saveIdempotent(ProcessedMembershipEvent.recorded(
 				command.eventUuid(),
 				command.memberUuid(),
 				MembershipEventTypes.PAYMENT_COMPLETED,
+				paymentUuid,
+				null,
 				processedAt
 		));
 	}

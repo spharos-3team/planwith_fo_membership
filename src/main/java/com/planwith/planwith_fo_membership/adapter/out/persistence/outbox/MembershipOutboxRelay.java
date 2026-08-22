@@ -122,8 +122,7 @@ public class MembershipOutboxRelay {
 		if (MembershipEventTypes.SETTLEMENT_COMPLETED.equals(eventType)) {
 			return kafkaProperties.getTopics().getSettlementCompleted();
 		}
-		log.warn("MembershipOutboxRelay : topicFor : 알 수 없는 Outbox eventType - eventType={}", eventType);
-		return kafkaProperties.getTopics().getMembershipSubscribed();
+		throw new IllegalArgumentException("알 수 없는 Outbox eventType 입니다: " + eventType);
 	}
 
 	private long sendTimeoutMillis() {

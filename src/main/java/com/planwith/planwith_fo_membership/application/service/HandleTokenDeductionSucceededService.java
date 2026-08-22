@@ -105,10 +105,11 @@ public class HandleTokenDeductionSucceededService implements HandleTokenDeductio
 	@Override
 	@Transactional
 	public void handle(HandleTokenDeductionSucceededCommand command) {
-		if (processedMembershipEventPort.existsByEventUuid(command.eventUuid())) {
+		if (alreadyProcessed(command.eventUuid(), command.paymentUuid().value(), MembershipEventTypes.TOKEN_DEDUCTION_SUCCEEDED)) {
 			log.warn(
-					"HandleTokenDeductionSucceededService : handle : 중복 TokenDeductionSucceeded 이벤트 무시 - eventUuid={}",
-					command.eventUuid()
+					"HandleTokenDeductionSucceededService : handle : 중복 TokenDeductionSucceeded 이벤트 무시 - eventUuid={}, paymentUuid={}",
+					command.eventUuid(),
+					command.paymentUuid()
 			);
 			return;
 		}
@@ -222,12 +223,18 @@ public class HandleTokenDeductionSucceededService implements HandleTokenDeductio
 		);
 	}
 
+	private boolean alreadyProcessed(UUID eventUuid, UUID paymentUuid, String eventType) {
+		return processedMembershipEventPort.alreadyProcessed(eventUuid, paymentUuid, null, eventType);
+	}
+
 	private void markProcessed(HandleTokenDeductionSucceededCommand command) {
 		Instant processedAt = command.succeededAt() == null ? Instant.now() : command.succeededAt();
 		processedMembershipEventPort.saveIdempotent(ProcessedMembershipEvent.recorded(
 				command.eventUuid(),
 				command.memberUuid(),
 				MembershipEventTypes.TOKEN_DEDUCTION_SUCCEEDED,
+				command.paymentUuid().value(),
+				null,
 				processedAt
 		));
 	}

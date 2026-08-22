@@ -38,11 +38,14 @@ public class PaymentRefundedEventConsumer {
 	public void consume(String payload) {
 		try {
 			PaymentRefundedInboundEvent event = objectMapper.readValue(payload, PaymentRefundedInboundEvent.class);
-			if (event.eventUuid() == null || event.memberUuid() == null) {
+			if (event.eventUuid() == null || event.memberUuid() == null || event.paymentUuid() == null) {
 				throw new IllegalArgumentException("PaymentRefunded payload is invalid.");
 			}
-			log.info("PaymentRefundedEventConsumer : consume : PaymentRefunded 이벤트 수신 - eventUuid={}",
-					event.eventUuid());
+			log.info(
+					"PaymentRefundedEventConsumer : consume : PaymentRefunded 이벤트 수신 - eventUuid={}, paymentUuid={}",
+					event.eventUuid(),
+					event.paymentUuid()
+			);
 			handlePaymentRefundedUseCase.handle(new HandlePaymentRefundedCommand(
 					UUID.fromString(event.eventUuid()),
 					MemberUuid.from(event.memberUuid()),

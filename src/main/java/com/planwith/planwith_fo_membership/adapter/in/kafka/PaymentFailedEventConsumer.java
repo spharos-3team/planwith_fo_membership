@@ -38,11 +38,14 @@ public class PaymentFailedEventConsumer {
 	public void consume(String payload) {
 		try {
 			PaymentFailedInboundEvent event = objectMapper.readValue(payload, PaymentFailedInboundEvent.class);
-			if (event.eventUuid() == null || event.memberUuid() == null) {
+			if (event.eventUuid() == null || event.memberUuid() == null || event.paymentUuid() == null) {
 				throw new IllegalArgumentException("PaymentFailed payload is invalid.");
 			}
-			log.info("PaymentFailedEventConsumer : consume : PaymentFailed 이벤트 수신 - eventUuid={}",
-					event.eventUuid());
+			log.info(
+					"PaymentFailedEventConsumer : consume : PaymentFailed 이벤트 수신 - eventUuid={}, paymentUuid={}",
+					event.eventUuid(),
+					event.paymentUuid()
+			);
 			handlePaymentFailedUseCase.handle(new HandlePaymentFailedCommand(
 					UUID.fromString(event.eventUuid()),
 					MemberUuid.from(event.memberUuid()),
