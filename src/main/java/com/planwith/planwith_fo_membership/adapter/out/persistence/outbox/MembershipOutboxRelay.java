@@ -104,6 +104,9 @@ public class MembershipOutboxRelay {
 	}
 
 	private String topicFor(String eventType) {
+		if (MembershipEventTypes.TOKEN_DEDUCTION_REQUESTED.equals(eventType)) {
+			return kafkaProperties.getTopics().getTokenDeductionRequested();
+		}
 		if (MembershipEventTypes.MEMBERSHIP_SUBSCRIBED.equals(eventType)) {
 			return kafkaProperties.getTopics().getMembershipSubscribed();
 		}
