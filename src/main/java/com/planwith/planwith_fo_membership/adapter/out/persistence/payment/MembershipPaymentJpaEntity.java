@@ -17,7 +17,10 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+import com.planwith.planwith_fo_membership.domain.model.MembershipPayment;
 import com.planwith.planwith_fo_membership.domain.model.PaymentStatus;
+import com.planwith.planwith_fo_membership.domain.model.vo.PaymentUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.SubscriptionUuid;
 
 @Entity
 @Table(
@@ -53,41 +56,27 @@ class MembershipPaymentJpaEntity {
 	protected MembershipPaymentJpaEntity() {
 	}
 
-	MembershipPaymentJpaEntity(
-			UUID paymentUuid,
-			UUID subscriptionUuid,
-			Long amount,
-			PaymentStatus paymentStatus,
-			Instant paidAt
-	) {
-		this.paymentUuid = paymentUuid;
-		this.subscriptionUuid = subscriptionUuid;
-		this.amount = amount;
-		this.paymentStatus = paymentStatus;
-		this.paidAt = paidAt;
+	static MembershipPaymentJpaEntity from(MembershipPayment payment) {
+		MembershipPaymentJpaEntity entity = new MembershipPaymentJpaEntity();
+		entity.apply(payment);
+		return entity;
 	}
 
-	Long paymentId() {
-		return paymentId;
+	void apply(MembershipPayment payment) {
+		this.paymentUuid = payment.paymentUuid().value();
+		this.subscriptionUuid = payment.subscriptionUuid().value();
+		this.amount = payment.amount();
+		this.paymentStatus = payment.paymentStatus();
+		this.paidAt = payment.paidAt();
 	}
 
-	UUID paymentUuid() {
-		return paymentUuid;
-	}
-
-	UUID subscriptionUuid() {
-		return subscriptionUuid;
-	}
-
-	Long amount() {
-		return amount;
-	}
-
-	PaymentStatus paymentStatus() {
-		return paymentStatus;
-	}
-
-	Instant paidAt() {
-		return paidAt;
+	MembershipPayment toDomain() {
+		return MembershipPayment.restore(
+				new PaymentUuid(paymentUuid),
+				new SubscriptionUuid(subscriptionUuid),
+				amount,
+				paymentStatus,
+				paidAt
+		);
 	}
 }
