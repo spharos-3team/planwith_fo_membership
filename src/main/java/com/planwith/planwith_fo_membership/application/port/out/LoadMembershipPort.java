@@ -11,4 +11,6 @@ public interface LoadMembershipPort {
 	Optional<Membership> findByUuid(MembershipUuid membershipUuid);
 
 	Optional<Membership> findLatestByCreator(CreatorUuid creatorUuid);
+
+	Optional<Membership> findOpenByCreator(CreatorUuid creatorUuid);
 }

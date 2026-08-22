@@ -1,5 +1,6 @@
 package com.planwith.planwith_fo_membership.adapter.out.persistence.membership;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -10,4 +11,6 @@ interface SpringDataMembershipRepository extends JpaRepository<MembershipJpaEnti
 	Optional<MembershipJpaEntity> findByMembershipUuid(UUID membershipUuid);
 
 	Optional<MembershipJpaEntity> findFirstByCreatorUuidOrderByCreateAtDesc(UUID creatorUuid);
+
+	Optional<MembershipJpaEntity> findFirstByCreatorUuidAndStatusIn(UUID creatorUuid, Collection<String> statuses);
 }

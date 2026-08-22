@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.planwith.planwith_fo_membership.adapter.in.web.dto.ApiErrorResponse;
+import com.planwith.planwith_fo_membership.domain.exception.DuplicateMembershipApplicationException;
+import com.planwith.planwith_fo_membership.domain.exception.InsufficientMembershipGradeException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidCredentialsException;
+import com.planwith.planwith_fo_membership.domain.exception.InvalidMembershipPriceException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidMembershipStateException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidPaymentStateException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidRevenueException;
@@ -24,6 +27,21 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(InvalidCredentialsException.class)
 	public ResponseEntity<ApiErrorResponse> handleInvalidCredentials(InvalidCredentialsException exception) {
 		return createErrorResponse(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", exception.getMessage());
+	}
+
+	@ExceptionHandler(InsufficientMembershipGradeException.class)
+	public ResponseEntity<ApiErrorResponse> handleInsufficientMembershipGrade(InsufficientMembershipGradeException exception) {
+		return createErrorResponse(HttpStatus.FORBIDDEN, "INSUFFICIENT_MEMBERSHIP_GRADE", exception.getMessage());
+	}
+
+	@ExceptionHandler(DuplicateMembershipApplicationException.class)
+	public ResponseEntity<ApiErrorResponse> handleDuplicateMembershipApplication(DuplicateMembershipApplicationException exception) {
+		return createErrorResponse(HttpStatus.CONFLICT, "DUPLICATE_MEMBERSHIP_APPLICATION", exception.getMessage());
+	}
+
+	@ExceptionHandler(InvalidMembershipPriceException.class)
+	public ResponseEntity<ApiErrorResponse> handleInvalidMembershipPrice(InvalidMembershipPriceException exception) {
+		return createErrorResponse(HttpStatus.BAD_REQUEST, "INVALID_MEMBERSHIP_PRICE", exception.getMessage());
 	}
 
 	@ExceptionHandler(InvalidMembershipStateException.class)

@@ -1,5 +1,6 @@
 package com.planwith.planwith_fo_membership.adapter.out.persistence.membership;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.planwith.planwith_fo_membership.application.port.out.LoadMembershipPort;
 import com.planwith.planwith_fo_membership.application.port.out.SaveMembershipPort;
 import com.planwith.planwith_fo_membership.domain.model.Membership;
+import com.planwith.planwith_fo_membership.domain.model.MembershipStatus;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
 
@@ -35,6 +37,16 @@ public class MembershipPersistenceAdapter implements LoadMembershipPort, SaveMem
 	@Transactional(readOnly = true)
 	public Optional<Membership> findLatestByCreator(CreatorUuid creatorUuid) {
 		return repository.findFirstByCreatorUuidOrderByCreateAtDesc(creatorUuid.value())
+				.map(MembershipJpaEntity::toDomain);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<Membership> findOpenByCreator(CreatorUuid creatorUuid) {
+		return repository.findFirstByCreatorUuidAndStatusIn(
+						creatorUuid.value(),
+						List.of(MembershipStatus.PENDING.name(), MembershipStatus.APPROVED.name())
+				)
 				.map(MembershipJpaEntity::toDomain);
 	}
 

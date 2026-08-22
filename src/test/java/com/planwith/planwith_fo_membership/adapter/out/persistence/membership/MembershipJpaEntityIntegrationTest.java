@@ -60,6 +60,10 @@ class MembershipJpaEntityIntegrationTest {
 				.get()
 				.extracting(Membership::membershipUuid)
 				.isEqualTo(membershipUuid);
+		assertThat(loadMembershipPort.findOpenByCreator(creatorUuid))
+				.get()
+				.extracting(Membership::status)
+				.isEqualTo(MembershipStatus.APPROVED);
 
 		Object persistedCreateAt = entityManager.createNativeQuery(
 						"select create_at from membership where membership_uuid = :membershipUuid"
