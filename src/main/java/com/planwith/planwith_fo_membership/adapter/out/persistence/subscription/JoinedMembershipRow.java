@@ -20,4 +20,6 @@ interface JoinedMembershipRow {
 	SubscriptionStatus getStatus();
 
 	Instant getStartedAt();
+
+	Instant getEndedAt();
 }

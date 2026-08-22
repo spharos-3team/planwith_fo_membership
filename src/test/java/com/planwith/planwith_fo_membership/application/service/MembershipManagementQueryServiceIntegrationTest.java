@@ -29,6 +29,7 @@ import com.planwith.planwith_fo_membership.domain.model.Membership;
 import com.planwith.planwith_fo_membership.domain.model.MembershipRevenue;
 import com.planwith.planwith_fo_membership.domain.model.MembershipStatus;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSubscription;
+import com.planwith.planwith_fo_membership.domain.model.SubscriptionStatus;
 import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
@@ -99,12 +100,18 @@ class MembershipManagementQueryServiceIntegrationTest {
 		assertThat(joined.membershipUuid()).isEqualTo(membershipUuid);
 		assertThat(joined.creatorUuid()).isEqualTo(creatorUuid);
 		assertThat(joined.membershipName()).isEqualTo("윤휘명의 여행 멤버십");
+		assertThat(joined.status()).isEqualTo(SubscriptionStatus.ACTIVE);
+		assertThat(joined.startedAt()).isEqualTo(Instant.parse("2026-08-22T00:01:00Z"));
+		assertThat(joined.endedAt()).isNull();
+		assertThat(joined.monthlyPrice()).isEqualTo(100);
 
 		CreatorSubscribersResult subscribers = listCreatorSubscribersQueryUseCase.list(
 				new ListCreatorSubscribersQuery(creatorUuid)
 		);
 		assertThat(subscribers.subscriberCount()).isEqualTo(1);
 		assertThat(subscribers.subscribers().get(0).memberUuid()).isEqualTo(subscriberUuid);
+		assertThat(subscribers.subscribers().get(0).status()).isEqualTo(SubscriptionStatus.ACTIVE);
+		assertThat(subscribers.subscribers().get(0).startedAt()).isEqualTo(Instant.parse("2026-08-22T00:01:00Z"));
 
 		RevenueResult revenue = getRevenueQueryUseCase.get(new GetRevenueQuery(creatorUuid));
 		assertThat(revenue.totalRevenue()).isEqualTo(12900L);

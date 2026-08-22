@@ -8,6 +8,7 @@ import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.SubscriptionUuid;
 import com.planwith.planwith_fo_membership.domain.service.MembershipPolicy;
+import com.planwith.planwith_fo_membership.domain.service.SubscriptionPolicy;
 
 public final class MembershipSubscription {
 
@@ -31,6 +32,9 @@ public final class MembershipSubscription {
 		this.memberUuid = Objects.requireNonNull(memberUuid, "Member UUID is required.");
 		this.status = Objects.requireNonNull(status, "Subscription status is required.");
 		this.startedAt = Objects.requireNonNull(startedAt, "Started at is required.");
+		if (!SubscriptionPolicy.isValidPeriod(this.status, this.startedAt, endedAt)) {
+			throw new InvalidSubscriptionStateException("구독 기간과 상태가 올바르지 않습니다.");
+		}
 		this.endedAt = endedAt;
 	}
 
@@ -81,7 +85,7 @@ public final class MembershipSubscription {
 	}
 
 	public MembershipSubscription deactivate(Instant endedAt) {
-		if (status != SubscriptionStatus.ACTIVE) {
+		if (!SubscriptionPolicy.canDeactivate(status)) {
 			throw new InvalidSubscriptionStateException("활성 구독만 비활성화할 수 있습니다.");
 		}
 		return new MembershipSubscription(

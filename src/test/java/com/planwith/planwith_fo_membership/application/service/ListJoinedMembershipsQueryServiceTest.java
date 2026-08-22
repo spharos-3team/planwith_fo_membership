@@ -74,5 +74,7 @@ class ListJoinedMembershipsQueryServiceTest {
 		assertThat(result.get(0).monthlyPrice()).isEqualTo(100);
 		assertThat(result.get(0).priceUnit()).isEqualTo(MembershipApplicationPolicy.PRICE_UNIT_TOKEN);
 		assertThat(result.get(0).status()).isEqualTo(SubscriptionStatus.ACTIVE);
+		assertThat(result.get(0).startedAt()).isEqualTo(Instant.parse("2026-08-22T00:01:00Z"));
+		assertThat(result.get(0).endedAt()).isNull();
 	}
 }

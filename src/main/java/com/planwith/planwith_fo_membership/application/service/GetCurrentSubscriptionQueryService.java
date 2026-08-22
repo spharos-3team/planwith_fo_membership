@@ -34,7 +34,8 @@ public class GetCurrentSubscriptionQueryService implements GetCurrentSubscriptio
 						subscription.memberUuid(),
 						query.creatorUuid(),
 						subscription.status(),
-						subscription.startedAt()
+						subscription.startedAt(),
+						subscription.endedAt()
 				));
 		log.debug(
 				"GetCurrentSubscriptionQueryService : get : 현재 구독 조회 - memberUuid={}, creatorUuid={}, exists={}",

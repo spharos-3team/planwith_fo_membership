@@ -89,7 +89,8 @@ public class MembershipManagementQueryController {
 						item.monthlyPrice(),
 						item.priceUnit(),
 						item.status().name(),
-						item.startedAt()
+						item.startedAt(),
+						item.endedAt()
 				))
 				.toList();
 		log.info(
@@ -118,7 +119,9 @@ public class MembershipManagementQueryController {
 						.map(item -> new CreatorSubscribersResponse.SubscriberResponse(
 								item.subscriptionUuid().value(),
 								item.memberUuid().value(),
-								item.startedAt()
+								item.status().name(),
+								item.startedAt(),
+								item.endedAt()
 						))
 						.toList()
 		);

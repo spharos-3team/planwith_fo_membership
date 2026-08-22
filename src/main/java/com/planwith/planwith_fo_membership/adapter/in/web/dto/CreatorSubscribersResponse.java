@@ -23,8 +23,14 @@ public record CreatorSubscribersResponse(
 			@Schema(description = "회원 UUID")
 			UUID memberUuid,
 
+			@Schema(description = "구독 상태", example = "ACTIVE")
+			String status,
+
 			@Schema(description = "가입 시각")
-			Instant startedAt
+			Instant startedAt,
+
+			@Schema(description = "종료 시각")
+			Instant endedAt
 	) {
 	}
 }

@@ -1,6 +1,7 @@
 package com.planwith.planwith_fo_membership.adapter.out.persistence.subscription;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.planwith.planwith_fo_membership.application.port.out.LoadSubscription
 import com.planwith.planwith_fo_membership.application.port.out.SaveMembershipPort;
 import com.planwith.planwith_fo_membership.application.port.out.SaveSubscriptionPort;
 import com.planwith.planwith_fo_membership.application.query.JoinedMembershipResult;
+import com.planwith.planwith_fo_membership.domain.exception.DuplicateSubscriptionException;
 import com.planwith.planwith_fo_membership.domain.model.Membership;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSubscription;
 import com.planwith.planwith_fo_membership.domain.model.SubscriptionStatus;
@@ -89,6 +91,9 @@ class MembershipSubscriptionPersistenceAdapterIntegrationTest {
 		assertThat(joined.get(0).creatorUuid()).isEqualTo(creatorUuid);
 		assertThat(joined.get(0).membershipName()).isEqualTo("테스트 멤버십");
 		assertThat(joined.get(0).monthlyPrice()).isEqualTo(9900);
+		assertThat(joined.get(0).status()).isEqualTo(SubscriptionStatus.ACTIVE);
+		assertThat(joined.get(0).startedAt()).isEqualTo(Instant.parse("2026-08-22T00:01:00Z"));
+		assertThat(joined.get(0).endedAt()).isNull();
 	}
 
 	@Test
@@ -117,6 +122,28 @@ class MembershipSubscriptionPersistenceAdapterIntegrationTest {
 		assertThat(subscribers).hasSize(1);
 		assertThat(subscribers.get(0).subscriptionUuid()).isEqualTo(activeUuid);
 		assertThat(subscribers.get(0).memberUuid()).isEqualTo(memberUuid);
+	}
+
+	@Test
+	void rejectsSecondActiveSubscriptionForSameMemberAndPlan() {
+		MemberUuid memberUuid = new MemberUuid(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+		CreatorUuid creatorUuid = new CreatorUuid(UUID.fromString("22222222-2222-2222-2222-222222222222"));
+		MembershipUuid membershipUuid = new MembershipUuid(UUID.fromString("99999999-9999-9999-9999-999999999999"));
+
+		saveApprovedMembership(membershipUuid, creatorUuid);
+		saveSubscriptionPort.save(MembershipSubscription.active(
+				new SubscriptionUuid(UUID.fromString("55555555-5555-5555-5555-555555555555")),
+				membershipUuid,
+				memberUuid,
+				Instant.parse("2026-08-22T00:01:00Z")
+		));
+
+		assertThatThrownBy(() -> saveSubscriptionPort.save(MembershipSubscription.active(
+				new SubscriptionUuid(UUID.fromString("88888888-8888-8888-8888-888888888888")),
+				membershipUuid,
+				memberUuid,
+				Instant.parse("2026-08-22T00:02:00Z")
+		))).isInstanceOf(DuplicateSubscriptionException.class);
 	}
 
 	private void saveApprovedMembership(MembershipUuid membershipUuid, CreatorUuid creatorUuid) {

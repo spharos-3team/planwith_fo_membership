@@ -61,4 +61,16 @@ class MembershipSubscriptionTest {
 		assertThatThrownBy(() -> inactive.deactivate(Instant.parse("2026-08-22T00:03:00Z")))
 				.isInstanceOf(InvalidSubscriptionStateException.class);
 	}
+
+	@Test
+	void restoreRejectsInvalidPeriod() {
+		assertThatThrownBy(() -> MembershipSubscription.restore(
+				subscriptionUuid,
+				membershipUuid,
+				memberUuid,
+				SubscriptionStatus.ACTIVE,
+				Instant.parse("2026-08-22T00:00:00Z"),
+				Instant.parse("2026-08-22T00:02:00Z")
+		)).isInstanceOf(InvalidSubscriptionStateException.class);
+	}
 }

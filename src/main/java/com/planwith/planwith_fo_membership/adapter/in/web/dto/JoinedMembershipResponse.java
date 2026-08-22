@@ -29,6 +29,9 @@ public record JoinedMembershipResponse(
 		String status,
 
 		@Schema(description = "가입 시각")
-		Instant startedAt
+		Instant startedAt,
+
+		@Schema(description = "종료 시각")
+		Instant endedAt
 ) {
 }
