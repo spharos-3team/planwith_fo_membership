@@ -24,6 +24,7 @@ import com.planwith.planwith_fo_membership.application.port.in.command.HandleTok
 import com.planwith.planwith_fo_membership.application.port.in.command.HandleTokenDeductionSucceededUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.StartTokenPaymentUseCase;
 import com.planwith.planwith_fo_membership.application.port.out.LoadPaymentPort;
+import com.planwith.planwith_fo_membership.application.port.out.LoadRevenueLedgerPort;
 import com.planwith.planwith_fo_membership.application.port.out.LoadRevenuePort;
 import com.planwith.planwith_fo_membership.application.port.out.LoadSubscriptionPort;
 import com.planwith.planwith_fo_membership.application.port.out.SaveMembershipPort;
@@ -73,6 +74,9 @@ class HandleTokenDeductionSagaServiceIntegrationTest {
 	private LoadRevenuePort loadRevenuePort;
 
 	@Autowired
+	private LoadRevenueLedgerPort loadRevenueLedgerPort;
+
+	@Autowired
 	private InMemoryFollowQueryAdapter followQueryPort;
 
 	@BeforeEach
@@ -112,7 +116,13 @@ class HandleTokenDeductionSagaServiceIntegrationTest {
 				.isEqualTo(PaymentStatus.SUCCESS);
 		assertThat(loadSubscriptionPort.findByUuid(started.subscriptionUuid()).orElseThrow().status())
 				.isEqualTo(SubscriptionStatus.ACTIVE);
-		assertThat(loadRevenuePort.findByCreator(creatorUuid).orElseThrow().availableRevenue()).isEqualTo(100L);
+		assertThat(loadRevenuePort.findByCreator(creatorUuid).orElseThrow().availableRevenue()).isEqualTo(3_000L);
+		assertThat(loadRevenueLedgerPort.findByPaymentUuid(started.paymentUuid()).orElseThrow().grossKrw())
+				.isEqualTo(10_000L);
+		assertThat(loadRevenueLedgerPort.findByPaymentUuid(started.paymentUuid()).orElseThrow().companyShareKrw())
+				.isEqualTo(7_000L);
+		assertThat(loadRevenueLedgerPort.findByPaymentUuid(started.paymentUuid()).orElseThrow().creatorShareKrw())
+				.isEqualTo(3_000L);
 	}
 
 	@Test
@@ -133,6 +143,7 @@ class HandleTokenDeductionSagaServiceIntegrationTest {
 				.isEqualTo(PaymentStatus.FAILED);
 		assertThat(loadSubscriptionPort.findByUuid(started.subscriptionUuid())).isEmpty();
 		assertThat(loadRevenuePort.findByCreator(creatorUuid).orElseThrow().totalRevenue()).isZero();
+		assertThat(loadRevenueLedgerPort.findByPaymentUuid(started.paymentUuid())).isEmpty();
 	}
 
 	@TestConfiguration

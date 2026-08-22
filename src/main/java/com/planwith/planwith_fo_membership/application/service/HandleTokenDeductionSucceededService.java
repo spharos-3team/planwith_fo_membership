@@ -16,6 +16,7 @@ import com.planwith.planwith_fo_membership.application.port.in.command.HandleTok
 import com.planwith.planwith_fo_membership.application.port.out.LoadMembershipPort;
 import com.planwith.planwith_fo_membership.application.port.out.LoadMembershipSagaPort;
 import com.planwith.planwith_fo_membership.application.port.out.LoadPaymentPort;
+import com.planwith.planwith_fo_membership.application.port.out.LoadRevenueLedgerPort;
 import com.planwith.planwith_fo_membership.application.port.out.LoadRevenuePort;
 import com.planwith.planwith_fo_membership.application.port.out.LoadSubscriptionPort;
 import com.planwith.planwith_fo_membership.application.port.out.MembershipEventOutboxPort;
@@ -23,6 +24,7 @@ import com.planwith.planwith_fo_membership.application.port.out.MembershipOutbox
 import com.planwith.planwith_fo_membership.application.port.out.ProcessedMembershipEventPort;
 import com.planwith.planwith_fo_membership.application.port.out.SaveMembershipSagaPort;
 import com.planwith.planwith_fo_membership.application.port.out.SavePaymentPort;
+import com.planwith.planwith_fo_membership.application.port.out.SaveRevenueLedgerPort;
 import com.planwith.planwith_fo_membership.application.port.out.SaveRevenuePort;
 import com.planwith.planwith_fo_membership.application.port.out.SaveSubscriptionPort;
 import com.planwith.planwith_fo_membership.domain.event.MembershipEventTypes;
@@ -31,13 +33,17 @@ import com.planwith.planwith_fo_membership.domain.exception.MembershipNotFoundEx
 import com.planwith.planwith_fo_membership.domain.model.Membership;
 import com.planwith.planwith_fo_membership.domain.model.MembershipPayment;
 import com.planwith.planwith_fo_membership.domain.model.MembershipRevenue;
+import com.planwith.planwith_fo_membership.domain.model.MembershipRevenueLedger;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSaga;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSubscription;
 import com.planwith.planwith_fo_membership.domain.model.PaymentStatus;
 import com.planwith.planwith_fo_membership.domain.model.ProcessedMembershipEvent;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.LedgerUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
 import com.planwith.planwith_fo_membership.domain.service.MembershipApplicationPolicy;
+import com.planwith.planwith_fo_membership.domain.service.RevenueSharePolicy;
+import com.planwith.planwith_fo_membership.domain.service.RevenueSharePolicy.RevenueShareResult;
 
 @Service
 public class HandleTokenDeductionSucceededService implements HandleTokenDeductionSucceededUseCase {
@@ -54,6 +60,8 @@ public class HandleTokenDeductionSucceededService implements HandleTokenDeductio
 	private final SaveSubscriptionPort saveSubscriptionPort;
 	private final LoadRevenuePort loadRevenuePort;
 	private final SaveRevenuePort saveRevenuePort;
+	private final LoadRevenueLedgerPort loadRevenueLedgerPort;
+	private final SaveRevenueLedgerPort saveRevenueLedgerPort;
 	private final MembershipEventOutboxPort membershipEventOutboxPort;
 	private final ObjectMapper objectMapper;
 
@@ -68,6 +76,8 @@ public class HandleTokenDeductionSucceededService implements HandleTokenDeductio
 			SaveSubscriptionPort saveSubscriptionPort,
 			LoadRevenuePort loadRevenuePort,
 			SaveRevenuePort saveRevenuePort,
+			LoadRevenueLedgerPort loadRevenueLedgerPort,
+			SaveRevenueLedgerPort saveRevenueLedgerPort,
 			MembershipEventOutboxPort membershipEventOutboxPort,
 			ObjectMapper objectMapper
 	) {
@@ -81,6 +91,8 @@ public class HandleTokenDeductionSucceededService implements HandleTokenDeductio
 		this.saveSubscriptionPort = saveSubscriptionPort;
 		this.loadRevenuePort = loadRevenuePort;
 		this.saveRevenuePort = saveRevenuePort;
+		this.loadRevenueLedgerPort = loadRevenueLedgerPort;
+		this.saveRevenueLedgerPort = saveRevenueLedgerPort;
 		this.membershipEventOutboxPort = membershipEventOutboxPort;
 		this.objectMapper = objectMapper;
 	}
@@ -121,7 +133,7 @@ public class HandleTokenDeductionSucceededService implements HandleTokenDeductio
 				command.memberUuid(),
 				completedAt
 		));
-		saveRevenuePort.save(recordRevenue(creatorUuid, succeeded.amount()));
+		recordRevenueShare(creatorUuid, succeeded, completedAt);
 		membershipEventOutboxPort.save(toSubscribedOutbox(command, creatorUuid, membership, succeeded, completedAt));
 		markProcessed(command);
 		log.info(
@@ -131,10 +143,44 @@ public class HandleTokenDeductionSucceededService implements HandleTokenDeductio
 		);
 	}
 
-	private MembershipRevenue recordRevenue(CreatorUuid creatorUuid, long amount) {
+	private void recordRevenueShare(CreatorUuid creatorUuid, MembershipPayment succeeded, Instant recordedAt) {
+		if (loadRevenueLedgerPort.findByPaymentUuid(succeeded.paymentUuid()).isPresent()) {
+			log.warn(
+					"HandleTokenDeductionSucceededService : handle : 동일 결제 수익 원장이 있어 배분을 생략한다 - paymentUuid={}",
+					succeeded.paymentUuid()
+			);
+			return;
+		}
+		RevenueShareResult share = RevenueSharePolicy.split(succeeded.amount());
+		log.debug(
+				"HandleTokenDeductionSucceededService : handle : 수익 배분 계산 확인 - paymentUuid={}, tokenAmount={}, grossKrw={}, companyShareKrw={}, creatorShareKrw={}",
+				succeeded.paymentUuid(),
+				share.tokenAmount(),
+				share.grossKrw(),
+				share.companyShareKrw(),
+				share.creatorShareKrw()
+		);
+		saveRevenueLedgerPort.save(MembershipRevenueLedger.recorded(
+				new LedgerUuid(UUID.randomUUID()),
+				succeeded.paymentUuid(),
+				creatorUuid,
+				share,
+				recordedAt
+		));
+		saveRevenuePort.save(recordCreatorRevenue(creatorUuid, share.creatorShareKrw()));
+		log.info(
+				"HandleTokenDeductionSucceededService : handle : 수익 배분 기록 완료 - paymentUuid={}, grossKrw={}, companyShareKrw={}, creatorShareKrw={}",
+				succeeded.paymentUuid(),
+				share.grossKrw(),
+				share.companyShareKrw(),
+				share.creatorShareKrw()
+		);
+	}
+
+	private MembershipRevenue recordCreatorRevenue(CreatorUuid creatorUuid, long creatorShareKrw) {
 		return loadRevenuePort.findByCreator(creatorUuid)
 				.orElseGet(() -> MembershipRevenue.empty(new RevenueUuid(UUID.randomUUID()), creatorUuid))
-				.record(amount);
+				.record(creatorShareKrw);
 	}
 
 	private MembershipOutboxMessage toSubscribedOutbox(
