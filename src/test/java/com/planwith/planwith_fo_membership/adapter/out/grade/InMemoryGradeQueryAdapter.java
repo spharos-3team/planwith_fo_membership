@@ -15,6 +15,10 @@ public class InMemoryGradeQueryAdapter implements GradeQueryPort {
 		grades.put(grade.memberUuid(), grade);
 	}
 
+	public void clear() {
+		grades.clear();
+	}
+
 	@Override
 	public MemberGradeResult getMemberGrade(MemberUuid memberUuid) {
 		MemberGradeResult grade = grades.get(memberUuid);
