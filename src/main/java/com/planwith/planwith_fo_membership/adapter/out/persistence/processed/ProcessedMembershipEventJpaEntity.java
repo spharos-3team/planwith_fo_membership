@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -20,7 +21,11 @@ import jakarta.persistence.UniqueConstraint;
 		uniqueConstraints = @UniqueConstraint(
 				name = "uk_processed_membership_event_uuid",
 				columnNames = {"event_uuid"}
-		)
+		),
+		indexes = {
+				@Index(name = "idx_processed_membership_payment", columnList = "event_type, payment_uuid"),
+				@Index(name = "idx_processed_membership_settlement", columnList = "event_type, settlement_uuid")
+		}
 )
 class ProcessedMembershipEventJpaEntity {
 
@@ -40,6 +45,14 @@ class ProcessedMembershipEventJpaEntity {
 	@Column(name = "event_type", nullable = false, length = 50)
 	private String eventType;
 
+	@JdbcTypeCode(SqlTypes.CHAR)
+	@Column(name = "payment_uuid", length = 36)
+	private UUID paymentUuid;
+
+	@JdbcTypeCode(SqlTypes.CHAR)
+	@Column(name = "settlement_uuid", length = 36)
+	private UUID settlementUuid;
+
 	@Column(name = "processed_at", nullable = false)
 	private Instant processedAt;
 
@@ -50,12 +63,16 @@ class ProcessedMembershipEventJpaEntity {
 			UUID eventUuid,
 			UUID memberUuid,
 			String eventType,
+			UUID paymentUuid,
+			UUID settlementUuid,
 			Instant processedAt
 	) {
 		ProcessedMembershipEventJpaEntity entity = new ProcessedMembershipEventJpaEntity();
 		entity.eventUuid = eventUuid;
 		entity.memberUuid = memberUuid;
 		entity.eventType = eventType;
+		entity.paymentUuid = paymentUuid;
+		entity.settlementUuid = settlementUuid;
 		entity.processedAt = processedAt;
 		return entity;
 	}

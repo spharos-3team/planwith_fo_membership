@@ -188,6 +188,14 @@ class HandleTokenDeductionSagaServiceTest {
 
 		succeededService.handle(command);
 		succeededService.handle(command);
+		succeededService.handle(new HandleTokenDeductionSucceededCommand(
+				UUID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+				memberUuid,
+				creatorUuid,
+				started.paymentUuid(),
+				started.subscriptionUuid(),
+				Instant.parse("2026-08-22T00:11:00Z")
+		));
 
 		assertThat(revenuePort.findByCreator(creatorUuid).orElseThrow().totalRevenue()).isEqualTo(3_000L);
 	}

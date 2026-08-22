@@ -52,10 +52,16 @@ public class HandleTokenDeductionFailedService implements HandleTokenDeductionFa
 	@Override
 	@Transactional
 	public void handle(HandleTokenDeductionFailedCommand command) {
-		if (processedMembershipEventPort.existsByEventUuid(command.eventUuid())) {
+		if (processedMembershipEventPort.alreadyProcessed(
+				command.eventUuid(),
+				command.paymentUuid().value(),
+				null,
+				MembershipEventTypes.TOKEN_DEDUCTION_FAILED
+		)) {
 			log.warn(
-					"HandleTokenDeductionFailedService : handle : 중복 TokenDeductionFailed 이벤트 무시 - eventUuid={}",
-					command.eventUuid()
+					"HandleTokenDeductionFailedService : handle : 중복 TokenDeductionFailed 이벤트 무시 - eventUuid={}, paymentUuid={}",
+					command.eventUuid(),
+					command.paymentUuid()
 			);
 			return;
 		}
@@ -98,6 +104,8 @@ public class HandleTokenDeductionFailedService implements HandleTokenDeductionFa
 				command.eventUuid(),
 				command.memberUuid(),
 				MembershipEventTypes.TOKEN_DEDUCTION_FAILED,
+				command.paymentUuid().value(),
+				null,
 				processedAt
 		));
 	}

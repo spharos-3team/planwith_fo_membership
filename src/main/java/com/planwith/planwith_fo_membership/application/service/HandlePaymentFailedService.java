@@ -1,6 +1,7 @@
 package com.planwith.planwith_fo_membership.application.service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,21 +28,32 @@ public class HandlePaymentFailedService implements HandlePaymentFailedUseCase {
 	@Override
 	@Transactional
 	public void handle(HandlePaymentFailedCommand command) {
-		if (processedMembershipEventPort.existsByEventUuid(command.eventUuid())) {
-			log.warn("HandlePaymentFailedService : handle : 중복 PaymentFailed 이벤트 무시 - eventUuid={}",
-					command.eventUuid());
+		UUID paymentUuid = command.paymentUuid() == null ? null : command.paymentUuid().value();
+		if (processedMembershipEventPort.alreadyProcessed(
+				command.eventUuid(),
+				paymentUuid,
+				null,
+				MembershipEventTypes.PAYMENT_FAILED
+		)) {
+			log.warn(
+					"HandlePaymentFailedService : handle : 중복 PaymentFailed 이벤트 무시 - eventUuid={}, paymentUuid={}",
+					command.eventUuid(),
+					command.paymentUuid()
+			);
 			return;
 		}
 		log.info(
-				"HandlePaymentFailedService : handle : PaymentFailed 수신, 보상 처리는 후속 Saga 이슈에서 구현한다 - eventUuid={}, memberUuid={}",
+				"HandlePaymentFailedService : handle : PaymentFailed 수신, 보상 처리는 TokenDeductionFailed Saga에서 처리한다 - eventUuid={}, paymentUuid={}",
 				command.eventUuid(),
-				command.memberUuid()
+				command.paymentUuid()
 		);
 		Instant processedAt = command.failedAt() == null ? Instant.now() : command.failedAt();
 		processedMembershipEventPort.saveIdempotent(ProcessedMembershipEvent.recorded(
 				command.eventUuid(),
 				command.memberUuid(),
 				MembershipEventTypes.PAYMENT_FAILED,
+				paymentUuid,
+				null,
 				processedAt
 		));
 	}
