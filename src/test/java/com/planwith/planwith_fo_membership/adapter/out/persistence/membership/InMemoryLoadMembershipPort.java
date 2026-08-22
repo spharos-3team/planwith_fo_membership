@@ -5,15 +5,17 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.planwith.planwith_fo_membership.application.port.out.LoadMembershipPort;
+import com.planwith.planwith_fo_membership.application.port.out.SaveMembershipPort;
 import com.planwith.planwith_fo_membership.domain.model.Membership;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
 import com.planwith.planwith_fo_membership.domain.service.MembershipApplicationPolicy;
 
-public class InMemoryLoadMembershipPort implements LoadMembershipPort {
+public class InMemoryLoadMembershipPort implements LoadMembershipPort, SaveMembershipPort {
 
 	private final Map<MembershipUuid, Membership> memberships = new HashMap<>();
 
+	@Override
 	public void save(Membership membership) {
 		memberships.put(membership.membershipUuid(), membership);
 	}
