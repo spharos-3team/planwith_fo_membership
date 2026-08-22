@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Instant;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,16 +17,20 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import com.planwith.planwith_fo_membership.adapter.in.web.exception.GlobalExceptionHandler;
+import com.planwith.planwith_fo_membership.application.port.in.command.CancelSubscriptionUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.StartTokenPaymentUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.ValidateJoinEligibilityUseCase;
+import com.planwith.planwith_fo_membership.application.query.CancelSubscriptionResult;
 import com.planwith.planwith_fo_membership.application.query.StartTokenPaymentResult;
 import com.planwith.planwith_fo_membership.application.query.ValidateJoinEligibilityResult;
 import com.planwith.planwith_fo_membership.domain.exception.DuplicateSubscriptionException;
 import com.planwith.planwith_fo_membership.domain.exception.FollowRequiredException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidMembershipStateException;
+import com.planwith.planwith_fo_membership.domain.exception.InvalidSubscriptionStateException;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
 import com.planwith.planwith_fo_membership.domain.model.PaymentStatus;
+import com.planwith.planwith_fo_membership.domain.model.SubscriptionStatus;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.PaymentUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.SubscriptionUuid;
@@ -35,15 +41,21 @@ class MembershipSubscriptionControllerTest {
 	private MockMvc mockMvc;
 	private ValidateJoinEligibilityUseCase validateJoinEligibilityUseCase;
 	private StartTokenPaymentUseCase startTokenPaymentUseCase;
+	private CancelSubscriptionUseCase cancelSubscriptionUseCase;
 
 	@BeforeEach
 	void setUp() {
 		validateJoinEligibilityUseCase = Mockito.mock(ValidateJoinEligibilityUseCase.class);
 		startTokenPaymentUseCase = Mockito.mock(StartTokenPaymentUseCase.class);
+		cancelSubscriptionUseCase = Mockito.mock(CancelSubscriptionUseCase.class);
 		LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
 		validator.afterPropertiesSet();
 		mockMvc = MockMvcBuilders.standaloneSetup(
-						new MembershipSubscriptionController(validateJoinEligibilityUseCase, startTokenPaymentUseCase)
+						new MembershipSubscriptionController(
+								validateJoinEligibilityUseCase,
+								startTokenPaymentUseCase,
+								cancelSubscriptionUseCase
+						)
 				)
 				.setControllerAdvice(new GlobalExceptionHandler())
 				.setValidator(validator)
@@ -149,6 +161,33 @@ class MembershipSubscriptionControllerTest {
 						.content(validBody()))
 				.andExpect(status().isForbidden())
 				.andExpect(jsonPath("$.code").value("FOLLOW_REQUIRED"));
+	}
+
+	@Test
+	void cancelSubscriptionReturnsInactiveResult() throws Exception {
+		when(cancelSubscriptionUseCase.cancel(any())).thenReturn(new CancelSubscriptionResult(
+				SubscriptionUuid.from("55555555-5555-5555-5555-555555555555"),
+				SubscriptionStatus.INACTIVE,
+				Instant.parse("2026-08-22T00:10:00Z")
+		));
+
+		mockMvc.perform(post("/api/planwith-fo-membership/memberships/me/subscriptions/55555555-5555-5555-5555-555555555555/cancel")
+						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.subscriptionUuid").value("55555555-5555-5555-5555-555555555555"))
+				.andExpect(jsonPath("$.status").value("INACTIVE"))
+				.andExpect(jsonPath("$.endedAt").exists());
+	}
+
+	@Test
+	void cancelSubscriptionReturnsConflictWhenAlreadyInactive() throws Exception {
+		when(cancelSubscriptionUseCase.cancel(any()))
+				.thenThrow(new InvalidSubscriptionStateException("이미 해지되었거나 만료된 구독입니다."));
+
+		mockMvc.perform(post("/api/planwith-fo-membership/memberships/me/subscriptions/55555555-5555-5555-5555-555555555555/cancel")
+						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111"))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.code").value("INVALID_SUBSCRIPTION_STATE"));
 	}
 
 	@Test

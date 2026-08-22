@@ -125,6 +125,34 @@ class MembershipSubscriptionPersistenceAdapterIntegrationTest {
 	}
 
 	@Test
+	void loadActiveSubscriptionsStartedAtOnOrBeforeCutoff() {
+		MemberUuid memberUuid = new MemberUuid(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+		CreatorUuid creatorUuid = new CreatorUuid(UUID.fromString("22222222-2222-2222-2222-222222222222"));
+		MembershipUuid membershipUuid = new MembershipUuid(UUID.fromString("99999999-9999-9999-9999-999999999999"));
+		SubscriptionUuid dueUuid = new SubscriptionUuid(UUID.fromString("55555555-5555-5555-5555-555555555555"));
+		SubscriptionUuid recentUuid = new SubscriptionUuid(UUID.fromString("66666666-6666-6666-6666-666666666666"));
+
+		saveApprovedMembership(membershipUuid, creatorUuid);
+		saveSubscriptionPort.save(MembershipSubscription.active(
+				dueUuid,
+				membershipUuid,
+				memberUuid,
+				Instant.parse("2026-07-22T00:00:00Z")
+		));
+		saveSubscriptionPort.save(MembershipSubscription.active(
+				recentUuid,
+				membershipUuid,
+				new MemberUuid(UUID.fromString("33333333-3333-3333-3333-333333333333")),
+				Instant.parse("2026-08-20T00:00:00Z")
+		));
+
+		List<MembershipSubscription> due = loadSubscriptionPort.findActiveStartedAtOnOrBefore(
+				Instant.parse("2026-07-23T00:00:00Z")
+		);
+		assertThat(due).extracting(MembershipSubscription::subscriptionUuid).containsExactly(dueUuid);
+	}
+
+	@Test
 	void rejectsSecondActiveSubscriptionForSameMemberAndPlan() {
 		MemberUuid memberUuid = new MemberUuid(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 		CreatorUuid creatorUuid = new CreatorUuid(UUID.fromString("22222222-2222-2222-2222-222222222222"));

@@ -1,0 +1,14 @@
+package com.planwith.planwith_fo_membership.application.event;
+
+import java.time.Instant;
+
+public record MembershipExpiredEvent(
+		String eventUuid,
+		String memberUuid,
+		String creatorUuid,
+		String membershipUuid,
+		String subscriptionUuid,
+		String processedBy,
+		Instant expiredAt
+) {
+}

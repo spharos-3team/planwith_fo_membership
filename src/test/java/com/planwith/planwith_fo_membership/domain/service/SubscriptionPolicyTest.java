@@ -51,4 +51,15 @@ class SubscriptionPolicyTest {
 		assertThat(SubscriptionPolicy.isDuplicateActive(true)).isTrue();
 		assertThat(SubscriptionPolicy.isDuplicateActive(false)).isFalse();
 	}
+
+	@Test
+	void isDueToExpireWhenTermHasElapsed() {
+		Instant startedAt = Instant.parse("2026-07-23T00:00:00Z");
+		Instant now = Instant.parse("2026-08-22T00:00:00Z");
+
+		assertThat(SubscriptionPolicy.isDueToExpire(startedAt, now)).isTrue();
+		assertThat(SubscriptionPolicy.isDueToExpire(startedAt, Instant.parse("2026-08-21T23:59:59Z"))).isFalse();
+		assertThat(SubscriptionPolicy.isDueToExpire(null, now)).isFalse();
+		assertThat(SubscriptionPolicy.isDueToExpire(startedAt, null)).isFalse();
+	}
 }

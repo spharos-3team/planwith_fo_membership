@@ -7,24 +7,30 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.planwith.planwith_fo_membership.adapter.in.web.dto.CancelSubscriptionResponse;
 import com.planwith.planwith_fo_membership.adapter.in.web.dto.StartTokenPaymentRequest;
 import com.planwith.planwith_fo_membership.adapter.in.web.dto.StartTokenPaymentResponse;
 import com.planwith.planwith_fo_membership.adapter.in.web.dto.ValidateJoinEligibilityRequest;
 import com.planwith.planwith_fo_membership.adapter.in.web.dto.ValidateJoinEligibilityResponse;
+import com.planwith.planwith_fo_membership.application.command.CancelSubscriptionCommand;
 import com.planwith.planwith_fo_membership.application.command.StartTokenPaymentCommand;
 import com.planwith.planwith_fo_membership.application.command.ValidateJoinEligibilityCommand;
+import com.planwith.planwith_fo_membership.application.port.in.command.CancelSubscriptionUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.StartTokenPaymentUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.ValidateJoinEligibilityUseCase;
+import com.planwith.planwith_fo_membership.application.query.CancelSubscriptionResult;
 import com.planwith.planwith_fo_membership.application.query.StartTokenPaymentResult;
 import com.planwith.planwith_fo_membership.application.query.ValidateJoinEligibilityResult;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.SubscriptionUuid;
 
 import jakarta.validation.Valid;
 
@@ -37,13 +43,16 @@ public class MembershipSubscriptionController {
 
 	private final ValidateJoinEligibilityUseCase validateJoinEligibilityUseCase;
 	private final StartTokenPaymentUseCase startTokenPaymentUseCase;
+	private final CancelSubscriptionUseCase cancelSubscriptionUseCase;
 
 	public MembershipSubscriptionController(
 			ValidateJoinEligibilityUseCase validateJoinEligibilityUseCase,
-			StartTokenPaymentUseCase startTokenPaymentUseCase
+			StartTokenPaymentUseCase startTokenPaymentUseCase,
+			CancelSubscriptionUseCase cancelSubscriptionUseCase
 	) {
 		this.validateJoinEligibilityUseCase = validateJoinEligibilityUseCase;
 		this.startTokenPaymentUseCase = startTokenPaymentUseCase;
+		this.cancelSubscriptionUseCase = cancelSubscriptionUseCase;
 	}
 
 	// 멤버십 가입 자격 검증
@@ -101,6 +110,33 @@ public class MembershipSubscriptionController {
 				result.amount(),
 				result.priceUnit(),
 				result.status().name()
+		));
+	}
+
+	// 멤버십 해지
+	@PostMapping("/memberships/me/subscriptions/{subscriptionUuid}/cancel")
+	public ResponseEntity<CancelSubscriptionResponse> cancelSubscription(
+			@RequestHeader("X-Member-UUID") UUID memberUuid,
+			@PathVariable UUID subscriptionUuid
+	) {
+		log.info(
+				"MembershipSubscriptionController : POST cancelSubscription : 멤버십 해지 요청 - memberUuid={}, subscriptionUuid={}",
+				memberUuid,
+				subscriptionUuid
+		);
+		CancelSubscriptionResult result = cancelSubscriptionUseCase.cancel(
+				new CancelSubscriptionCommand(new MemberUuid(memberUuid), new SubscriptionUuid(subscriptionUuid), null)
+		);
+		log.info(
+				"MembershipSubscriptionController : POST cancelSubscription : 멤버십 해지 완료 - memberUuid={}, subscriptionUuid={}, status={}",
+				memberUuid,
+				result.subscriptionUuid(),
+				result.status()
+		);
+		return ResponseEntity.ok(new CancelSubscriptionResponse(
+				result.subscriptionUuid().value(),
+				result.status().name(),
+				result.endedAt()
 		));
 	}
 }
