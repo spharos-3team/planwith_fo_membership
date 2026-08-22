@@ -14,6 +14,7 @@ public record CurrentSubscriptionResult(
 		MemberUuid memberUuid,
 		CreatorUuid creatorUuid,
 		SubscriptionStatus status,
-		Instant startedAt
+		Instant startedAt,
+		Instant endedAt
 ) {
 }

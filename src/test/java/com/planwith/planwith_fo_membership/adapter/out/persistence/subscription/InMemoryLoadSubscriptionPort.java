@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.planwith.planwith_fo_membership.application.port.out.LoadSubscriptionPort;
 import com.planwith.planwith_fo_membership.application.port.out.SaveSubscriptionPort;
 import com.planwith.planwith_fo_membership.application.query.JoinedMembershipResult;
+import com.planwith.planwith_fo_membership.domain.exception.DuplicateSubscriptionException;
 import com.planwith.planwith_fo_membership.domain.model.Membership;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSubscription;
 import com.planwith.planwith_fo_membership.domain.model.SubscriptionStatus;
@@ -16,6 +17,7 @@ import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.SubscriptionUuid;
 import com.planwith.planwith_fo_membership.domain.service.MembershipApplicationPolicy;
+import com.planwith.planwith_fo_membership.domain.service.SubscriptionPolicy;
 
 public class InMemoryLoadSubscriptionPort implements LoadSubscriptionPort, SaveSubscriptionPort {
 
@@ -28,6 +30,16 @@ public class InMemoryLoadSubscriptionPort implements LoadSubscriptionPort, SaveS
 
 	@Override
 	public void save(MembershipSubscription subscription) {
+		if (subscription.status() == SubscriptionStatus.ACTIVE) {
+			boolean hasOtherActive = subscriptions.values().stream()
+					.filter(existing -> !existing.subscriptionUuid().equals(subscription.subscriptionUuid()))
+					.filter(existing -> existing.memberUuid().equals(subscription.memberUuid()))
+					.filter(existing -> existing.membershipUuid().equals(subscription.membershipUuid()))
+					.anyMatch(existing -> existing.status() == SubscriptionStatus.ACTIVE);
+			if (SubscriptionPolicy.isDuplicateActive(hasOtherActive)) {
+				throw new DuplicateSubscriptionException("이미 가입한 멤버십입니다.");
+			}
+		}
 		subscriptions.put(subscription.subscriptionUuid(), subscription);
 	}
 
@@ -81,7 +93,8 @@ public class InMemoryLoadSubscriptionPort implements LoadSubscriptionPort, SaveS
 				membership.monthlyPrice(),
 				MembershipApplicationPolicy.PRICE_UNIT_TOKEN,
 				subscription.status(),
-				subscription.startedAt()
+				subscription.startedAt(),
+				subscription.endedAt()
 		));
 	}
 }

@@ -108,7 +108,8 @@ class MembershipManagementQueryControllerTest {
 				200,
 				MembershipApplicationPolicy.PRICE_UNIT_TOKEN,
 				SubscriptionStatus.ACTIVE,
-				Instant.parse("2026-01-15T00:00:00Z")
+				Instant.parse("2026-01-15T00:00:00Z"),
+				null
 		)));
 
 		mockMvc.perform(get("/api/planwith-fo-membership/memberships/me/subscriptions")
@@ -118,7 +119,9 @@ class MembershipManagementQueryControllerTest {
 				.andExpect(jsonPath("$[0].membershipName").value("탐험가 멤버십"))
 				.andExpect(jsonPath("$[0].monthlyPrice").value(200))
 				.andExpect(jsonPath("$[0].priceUnit").value("TOKEN"))
-				.andExpect(jsonPath("$[0].status").value("ACTIVE"));
+				.andExpect(jsonPath("$[0].status").value("ACTIVE"))
+				.andExpect(jsonPath("$[0].startedAt").exists())
+				.andExpect(jsonPath("$[0].endedAt").doesNotExist());
 	}
 
 	@Test
@@ -128,7 +131,9 @@ class MembershipManagementQueryControllerTest {
 				List.of(new CreatorSubscriberResult(
 						SubscriptionUuid.from("55555555-5555-5555-5555-555555555555"),
 						MemberUuid.from("11111111-1111-1111-1111-111111111111"),
-						Instant.parse("2026-01-15T00:00:00Z")
+						SubscriptionStatus.ACTIVE,
+						Instant.parse("2026-01-15T00:00:00Z"),
+						null
 				))
 		));
 
@@ -136,7 +141,9 @@ class MembershipManagementQueryControllerTest {
 						.header("X-Member-UUID", MEMBER_UUID))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.subscriberCount").value(1))
-				.andExpect(jsonPath("$.subscribers[0].memberUuid").value("11111111-1111-1111-1111-111111111111"));
+				.andExpect(jsonPath("$.subscribers[0].memberUuid").value("11111111-1111-1111-1111-111111111111"))
+				.andExpect(jsonPath("$.subscribers[0].status").value("ACTIVE"))
+				.andExpect(jsonPath("$.subscribers[0].startedAt").exists());
 	}
 
 	@Test

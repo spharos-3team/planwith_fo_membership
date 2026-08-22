@@ -15,6 +15,7 @@ public record JoinedMembershipResult(
 		int monthlyPrice,
 		String priceUnit,
 		SubscriptionStatus status,
-		Instant startedAt
+		Instant startedAt,
+		Instant endedAt
 ) {
 }

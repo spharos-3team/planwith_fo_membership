@@ -43,7 +43,8 @@ interface SpringDataMembershipSubscriptionRepository extends JpaRepository<Membe
 				membership.membershipName as membershipName,
 				membership.monthlyPrice as monthlyPrice,
 				subscription.status as status,
-				subscription.startedAt as startedAt
+				subscription.startedAt as startedAt,
+				subscription.endedAt as endedAt
 			from MembershipSubscriptionJpaEntity subscription, MembershipJpaEntity membership
 			where subscription.membershipUuid = membership.membershipUuid
 				and subscription.memberUuid = :memberUuid

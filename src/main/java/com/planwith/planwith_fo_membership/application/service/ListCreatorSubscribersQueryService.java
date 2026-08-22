@@ -32,7 +32,9 @@ public class ListCreatorSubscribersQueryService implements ListCreatorSubscriber
 				.map(subscription -> new CreatorSubscriberResult(
 						subscription.subscriptionUuid(),
 						subscription.memberUuid(),
-						subscription.startedAt()
+						subscription.status(),
+						subscription.startedAt(),
+						subscription.endedAt()
 				))
 				.toList();
 		log.debug(
