@@ -90,6 +90,40 @@ public final class MembershipRevenue {
 		);
 	}
 
+	public MembershipRevenue confirmReserved(long amount) {
+		if (amount <= 0) {
+			throw new InvalidRevenueException("정산 금액은 0보다 커야 합니다.");
+		}
+		if (amount > reservedRevenue) {
+			throw new InvalidRevenueException("정산 신청 중 금액을 초과할 수 없습니다.");
+		}
+		return new MembershipRevenue(
+				revenueUuid,
+				creatorUuid,
+				totalRevenue,
+				availableRevenue,
+				reservedRevenue - amount,
+				settledRevenue + amount
+		);
+	}
+
+	public MembershipRevenue releaseReserved(long amount) {
+		if (amount <= 0) {
+			throw new InvalidRevenueException("정산 금액은 0보다 커야 합니다.");
+		}
+		if (amount > reservedRevenue) {
+			throw new InvalidRevenueException("정산 신청 중 금액을 초과할 수 없습니다.");
+		}
+		return new MembershipRevenue(
+				revenueUuid,
+				creatorUuid,
+				totalRevenue,
+				availableRevenue + amount,
+				reservedRevenue - amount,
+				settledRevenue
+		);
+	}
+
 	public MembershipRevenue settle(long amount) {
 		if (amount <= 0) {
 			throw new InvalidRevenueException("정산 금액은 0보다 커야 합니다.");

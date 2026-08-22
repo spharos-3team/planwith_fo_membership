@@ -22,6 +22,7 @@ import com.planwith.planwith_fo_membership.domain.exception.InvalidRevenueExcept
 import com.planwith.planwith_fo_membership.domain.exception.InvalidSettlementStateException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidSubscriptionStateException;
 import com.planwith.planwith_fo_membership.domain.exception.MembershipNotFoundException;
+import com.planwith.planwith_fo_membership.domain.exception.SettlementNotFoundException;
 import com.planwith.planwith_fo_membership.domain.exception.UnsupportedMembershipOperationException;
 
 @RestControllerAdvice
@@ -60,6 +61,11 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MembershipNotFoundException.class)
 	public ResponseEntity<ApiErrorResponse> handleMembershipNotFound(MembershipNotFoundException exception) {
 		return createErrorResponse(HttpStatus.NOT_FOUND, "MEMBERSHIP_NOT_FOUND", exception.getMessage());
+	}
+
+	@ExceptionHandler(SettlementNotFoundException.class)
+	public ResponseEntity<ApiErrorResponse> handleSettlementNotFound(SettlementNotFoundException exception) {
+		return createErrorResponse(HttpStatus.NOT_FOUND, "SETTLEMENT_NOT_FOUND", exception.getMessage());
 	}
 
 	@ExceptionHandler(InvalidMembershipStateException.class)

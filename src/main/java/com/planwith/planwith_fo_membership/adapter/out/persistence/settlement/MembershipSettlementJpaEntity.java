@@ -19,6 +19,7 @@ import jakarta.persistence.UniqueConstraint;
 
 import com.planwith.planwith_fo_membership.domain.model.MembershipSettlement;
 import com.planwith.planwith_fo_membership.domain.model.SettlementStatus;
+import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.SettlementUuid;
@@ -70,6 +71,10 @@ class MembershipSettlementJpaEntity {
 	@Column(name = "reject_reason", length = 500)
 	private String rejectReason;
 
+	@JdbcTypeCode(SqlTypes.CHAR)
+	@Column(name = "admin_uuid", length = 36)
+	private UUID adminUuid;
+
 	protected MembershipSettlementJpaEntity() {
 	}
 
@@ -89,6 +94,7 @@ class MembershipSettlementJpaEntity {
 		this.approvedAt = settlement.approvedAt();
 		this.paidAt = settlement.paidAt();
 		this.rejectReason = settlement.rejectReason();
+		this.adminUuid = settlement.processedBy() == null ? null : settlement.processedBy().value();
 	}
 
 	MembershipSettlement toDomain() {
@@ -101,7 +107,8 @@ class MembershipSettlementJpaEntity {
 				requestedAt,
 				approvedAt,
 				paidAt,
-				rejectReason
+				rejectReason,
+				adminUuid == null ? null : new AdminUuid(adminUuid)
 		);
 	}
 }

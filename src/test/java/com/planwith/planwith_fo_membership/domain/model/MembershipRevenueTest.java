@@ -81,4 +81,35 @@ class MembershipRevenueTest {
 				.isInstanceOf(InvalidRevenueException.class)
 				.hasMessage("정산 가능 금액을 초과할 수 없습니다.");
 	}
+
+	@Test
+	void confirmReservedMovesReservedToSettledWithoutChangingAvailable() {
+		MembershipRevenue revenue = MembershipRevenue.empty(
+						new RevenueUuid(UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc")),
+						new CreatorUuid(UUID.fromString("22222222-2222-2222-2222-222222222222"))
+				)
+				.record(50_000L)
+				.reserve(30_000L)
+				.confirmReserved(30_000L);
+
+		assertThat(revenue.availableRevenue()).isEqualTo(20_000L);
+		assertThat(revenue.reservedRevenue()).isZero();
+		assertThat(revenue.settledRevenue()).isEqualTo(30_000L);
+		assertThat(revenue.totalRevenue()).isEqualTo(50_000L);
+	}
+
+	@Test
+	void releaseReservedReturnsAmountToAvailable() {
+		MembershipRevenue revenue = MembershipRevenue.empty(
+						new RevenueUuid(UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc")),
+						new CreatorUuid(UUID.fromString("22222222-2222-2222-2222-222222222222"))
+				)
+				.record(50_000L)
+				.reserve(30_000L)
+				.releaseReserved(30_000L);
+
+		assertThat(revenue.availableRevenue()).isEqualTo(50_000L);
+		assertThat(revenue.reservedRevenue()).isZero();
+		assertThat(revenue.settledRevenue()).isZero();
+	}
 }
