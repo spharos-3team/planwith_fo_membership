@@ -13,15 +13,21 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 import com.planwith.planwith_fo_membership.domain.model.MembershipSaga;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSagaStatus;
+import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.PaymentUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.SubscriptionUuid;
 
 @Entity
-@Table(name = "membership_saga")
+@Table(
+		name = "membership_saga",
+		indexes = @Index(name = "idx_membership_saga_member_creator_status", columnList = "member_uuid, creator_uuid, status")
+)
 class MembershipSagaJpaEntity {
 
 	@Id
@@ -32,6 +38,14 @@ class MembershipSagaJpaEntity {
 	@JdbcTypeCode(SqlTypes.CHAR)
 	@Column(name = "saga_uuid", nullable = false, unique = true, length = 36)
 	private UUID sagaUuid;
+
+	@JdbcTypeCode(SqlTypes.CHAR)
+	@Column(name = "member_uuid", nullable = false, length = 36)
+	private UUID memberUuid;
+
+	@JdbcTypeCode(SqlTypes.CHAR)
+	@Column(name = "creator_uuid", nullable = false, length = 36)
+	private UUID creatorUuid;
 
 	@JdbcTypeCode(SqlTypes.CHAR)
 	@Column(name = "subscription_uuid", nullable = false, length = 36)
@@ -59,6 +73,8 @@ class MembershipSagaJpaEntity {
 
 	void apply(MembershipSaga saga) {
 		this.sagaUuid = saga.sagaUuid();
+		this.memberUuid = saga.memberUuid().value();
+		this.creatorUuid = saga.creatorUuid().value();
 		this.subscriptionUuid = saga.subscriptionUuid().value();
 		this.paymentUuid = saga.paymentUuid() == null ? null : saga.paymentUuid().value();
 		this.status = saga.status();
@@ -68,6 +84,8 @@ class MembershipSagaJpaEntity {
 	MembershipSaga toDomain() {
 		return MembershipSaga.restore(
 				sagaUuid,
+				new MemberUuid(memberUuid),
+				new CreatorUuid(creatorUuid),
 				new SubscriptionUuid(subscriptionUuid),
 				paymentUuid == null ? null : new PaymentUuid(paymentUuid),
 				status,

@@ -15,27 +15,36 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import com.planwith.planwith_fo_membership.adapter.in.web.exception.GlobalExceptionHandler;
+import com.planwith.planwith_fo_membership.application.port.in.command.StartTokenPaymentUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.ValidateJoinEligibilityUseCase;
+import com.planwith.planwith_fo_membership.application.query.StartTokenPaymentResult;
 import com.planwith.planwith_fo_membership.application.query.ValidateJoinEligibilityResult;
 import com.planwith.planwith_fo_membership.domain.exception.DuplicateSubscriptionException;
 import com.planwith.planwith_fo_membership.domain.exception.FollowRequiredException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidMembershipStateException;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
+import com.planwith.planwith_fo_membership.domain.model.PaymentStatus;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.PaymentUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.SubscriptionUuid;
 import com.planwith.planwith_fo_membership.domain.service.MembershipApplicationPolicy;
 
 class MembershipSubscriptionControllerTest {
 
 	private MockMvc mockMvc;
 	private ValidateJoinEligibilityUseCase validateJoinEligibilityUseCase;
+	private StartTokenPaymentUseCase startTokenPaymentUseCase;
 
 	@BeforeEach
 	void setUp() {
 		validateJoinEligibilityUseCase = Mockito.mock(ValidateJoinEligibilityUseCase.class);
+		startTokenPaymentUseCase = Mockito.mock(StartTokenPaymentUseCase.class);
 		LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
 		validator.afterPropertiesSet();
-		mockMvc = MockMvcBuilders.standaloneSetup(new MembershipSubscriptionController(validateJoinEligibilityUseCase))
+		mockMvc = MockMvcBuilders.standaloneSetup(
+						new MembershipSubscriptionController(validateJoinEligibilityUseCase, startTokenPaymentUseCase)
+				)
 				.setControllerAdvice(new GlobalExceptionHandler())
 				.setValidator(validator)
 				.build();
@@ -106,6 +115,40 @@ class MembershipSubscriptionControllerTest {
 						.content(validBody()))
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.code").value("INVALID_MEMBERSHIP_STATE"));
+	}
+
+	@Test
+	void startTokenPaymentReturnsReadyPayment() throws Exception {
+		when(startTokenPaymentUseCase.start(any())).thenReturn(new StartTokenPaymentResult(
+				PaymentUuid.from("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+				SubscriptionUuid.from("55555555-5555-5555-5555-555555555555"),
+				100L,
+				MembershipApplicationPolicy.PRICE_UNIT_TOKEN,
+				PaymentStatus.READY
+		));
+
+		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/payments")
+						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(validBody()))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.paymentUuid").value("cccccccc-cccc-cccc-cccc-cccccccccccc"))
+				.andExpect(jsonPath("$.amount").value(100))
+				.andExpect(jsonPath("$.priceUnit").value("TOKEN"))
+				.andExpect(jsonPath("$.status").value("READY"));
+	}
+
+	@Test
+	void startTokenPaymentReturnsForbiddenWhenFollowIsRequired() throws Exception {
+		when(startTokenPaymentUseCase.start(any()))
+				.thenThrow(new FollowRequiredException("팔로워만 멤버십에 가입할 수 있습니다."));
+
+		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/payments")
+						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(validBody()))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.code").value("FOLLOW_REQUIRED"));
 	}
 
 	@Test
