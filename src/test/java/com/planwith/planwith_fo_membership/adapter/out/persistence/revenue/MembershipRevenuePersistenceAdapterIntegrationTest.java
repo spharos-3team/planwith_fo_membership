@@ -39,6 +39,7 @@ class MembershipRevenuePersistenceAdapterIntegrationTest {
 		assertThat(loaded.revenueUuid()).isEqualTo(revenueUuid);
 		assertThat(loaded.totalRevenue()).isEqualTo(12900L);
 		assertThat(loaded.availableRevenue()).isEqualTo(10000L);
+		assertThat(loaded.reservedRevenue()).isZero();
 		assertThat(loaded.settledRevenue()).isEqualTo(2900L);
 		assertThat(loadRevenuePort.findByUuid(revenueUuid))
 				.get()

@@ -43,11 +43,13 @@ class GetRevenueQueryServiceIntegrationTest {
 		assertThat(result.revenueUuid()).isEqualTo(revenueUuid);
 		assertThat(result.totalRevenue()).isEqualTo(120_000L);
 		assertThat(result.availableRevenue()).isEqualTo(70_000L);
+		assertThat(result.reservedRevenue()).isZero();
 		assertThat(result.settledRevenue()).isEqualTo(50_000L);
 
 		MembershipRevenue stored = loadRevenuePort.findByUuid(revenueUuid).orElseThrow();
 		assertThat(stored.totalRevenue()).isEqualTo(120_000L);
 		assertThat(stored.availableRevenue()).isEqualTo(70_000L);
+		assertThat(stored.reservedRevenue()).isZero();
 		assertThat(stored.settledRevenue()).isEqualTo(50_000L);
 	}
 
@@ -58,6 +60,7 @@ class GetRevenueQueryServiceIntegrationTest {
 		assertThat(result.revenueUuid()).isNull();
 		assertThat(result.totalRevenue()).isZero();
 		assertThat(result.availableRevenue()).isZero();
+		assertThat(result.reservedRevenue()).isZero();
 		assertThat(result.settledRevenue()).isZero();
 	}
 }

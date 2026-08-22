@@ -130,9 +130,9 @@ class MembershipManagementQueryServiceIntegrationTest {
 		assertThat(subscribers.subscriberCount()).isZero();
 
 		RevenueResult revenue = getRevenueQueryUseCase.get(new GetRevenueQuery(creatorUuid));
-		assertThat(revenue.revenueUuid()).isNull();
 		assertThat(revenue.totalRevenue()).isZero();
 		assertThat(revenue.availableRevenue()).isZero();
+		assertThat(revenue.reservedRevenue()).isZero();
 		assertThat(revenue.settledRevenue()).isZero();
 	}
 }

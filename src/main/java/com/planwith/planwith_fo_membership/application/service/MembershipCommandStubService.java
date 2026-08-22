@@ -6,12 +6,10 @@ import org.springframework.stereotype.Service;
 
 import com.planwith.planwith_fo_membership.application.command.CreateMembershipCommand;
 import com.planwith.planwith_fo_membership.application.command.ProcessSettlementCommand;
-import com.planwith.planwith_fo_membership.application.command.RequestSettlementCommand;
 import com.planwith.planwith_fo_membership.application.command.SubscribeMembershipCommand;
 import com.planwith.planwith_fo_membership.application.command.UpdateMembershipCommand;
 import com.planwith.planwith_fo_membership.application.port.in.command.CreateMembershipUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.ProcessSettlementUseCase;
-import com.planwith.planwith_fo_membership.application.port.in.command.RequestSettlementUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.SubscribeMembershipUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.UpdateMembershipUseCase;
 import com.planwith.planwith_fo_membership.domain.exception.UnsupportedMembershipOperationException;
@@ -21,7 +19,6 @@ public class MembershipCommandStubService implements
 		CreateMembershipUseCase,
 		UpdateMembershipUseCase,
 		SubscribeMembershipUseCase,
-		RequestSettlementUseCase,
 		ProcessSettlementUseCase {
 
 	private static final Logger log = LoggerFactory.getLogger(MembershipCommandStubService.class);
@@ -45,13 +42,6 @@ public class MembershipCommandStubService implements
 				command.memberUuid()
 		);
 		throw unsupported("멤버십 구독 Saga");
-	}
-
-	@Override
-	public void request(RequestSettlementCommand command) {
-		log.debug("MembershipCommandStubService : request : 정산 요청은 후속 이슈에서 구현한다 - creatorUuid={}",
-				command.creatorUuid());
-		throw unsupported("정산 요청");
 	}
 
 	@Override

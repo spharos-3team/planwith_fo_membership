@@ -34,6 +34,7 @@ class GetRevenueQueryServiceTest {
 		assertThat(result.creatorUuid()).isEqualTo(creatorUuid);
 		assertThat(result.totalRevenue()).isZero();
 		assertThat(result.availableRevenue()).isZero();
+		assertThat(result.reservedRevenue()).isZero();
 		assertThat(result.settledRevenue()).isZero();
 	}
 
@@ -46,8 +47,10 @@ class GetRevenueQueryServiceTest {
 		assertThat(result.revenueUuid()).isEqualTo(revenueUuid);
 		assertThat(result.totalRevenue()).isEqualTo(120_000L);
 		assertThat(result.availableRevenue()).isEqualTo(70_000L);
+		assertThat(result.reservedRevenue()).isZero();
 		assertThat(result.settledRevenue()).isEqualTo(50_000L);
-		assertThat(result.availableRevenue() + result.settledRevenue()).isEqualTo(result.totalRevenue());
+		assertThat(result.availableRevenue() + result.reservedRevenue() + result.settledRevenue())
+				.isEqualTo(result.totalRevenue());
 		assertThat(revenuePort.findByUuid(revenueUuid).orElseThrow().availableRevenue()).isEqualTo(70_000L);
 	}
 

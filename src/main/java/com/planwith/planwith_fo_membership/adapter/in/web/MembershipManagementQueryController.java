@@ -144,13 +144,15 @@ public class MembershipManagementQueryController {
 				result.revenueUuid() == null ? null : result.revenueUuid().value(),
 				result.totalRevenue(),
 				result.availableRevenue(),
+				result.reservedRevenue(),
 				result.settledRevenue()
 		);
 		log.info(
-				"MembershipManagementQueryController : GET getMyRevenue : Creator 수익 조회 완료 - memberUuid={}, totalRevenue={}, availableRevenue={}, settledRevenue={}",
+				"MembershipManagementQueryController : GET getMyRevenue : Creator 수익 조회 완료 - memberUuid={}, totalRevenue={}, availableRevenue={}, reservedRevenue={}, settledRevenue={}",
 				memberUuid,
 				response.totalRevenue(),
 				response.availableRevenue(),
+				response.reservedRevenue(),
 				response.settledRevenue()
 		);
 		return ResponseEntity.ok(response);

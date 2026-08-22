@@ -28,10 +28,11 @@ public class GetRevenueQueryService implements GetRevenueQueryUseCase {
 				.map(RevenueResult::from)
 				.orElseGet(() -> RevenueResult.empty(query.creatorUuid()));
 		log.debug(
-				"GetRevenueQueryService : get : Creator 수익 조회 - creatorUuid={}, totalRevenue={}, availableRevenue={}, settledRevenue={}",
+				"GetRevenueQueryService : get : Creator 수익 조회 - creatorUuid={}, totalRevenue={}, availableRevenue={}, reservedRevenue={}, settledRevenue={}",
 				query.creatorUuid(),
 				result.totalRevenue(),
 				result.availableRevenue(),
+				result.reservedRevenue(),
 				result.settledRevenue()
 		);
 		return result;

@@ -12,6 +12,7 @@ public final class MembershipRevenue {
 	private final CreatorUuid creatorUuid;
 	private final long totalRevenue;
 	private final long availableRevenue;
+	private final long reservedRevenue;
 	private final long settledRevenue;
 
 	private MembershipRevenue(
@@ -19,23 +20,25 @@ public final class MembershipRevenue {
 			CreatorUuid creatorUuid,
 			long totalRevenue,
 			long availableRevenue,
+			long reservedRevenue,
 			long settledRevenue
 	) {
 		this.revenueUuid = Objects.requireNonNull(revenueUuid, "Revenue UUID is required.");
 		this.creatorUuid = Objects.requireNonNull(creatorUuid, "Creator UUID is required.");
-		if (totalRevenue < 0 || availableRevenue < 0 || settledRevenue < 0) {
+		if (totalRevenue < 0 || availableRevenue < 0 || reservedRevenue < 0 || settledRevenue < 0) {
 			throw new InvalidRevenueException("수익 금액은 음수일 수 없습니다.");
 		}
-		if (availableRevenue + settledRevenue != totalRevenue) {
-			throw new InvalidRevenueException("정산 가능 금액과 정산 완료 금액의 합은 총 수익과 같아야 합니다.");
+		if (availableRevenue + reservedRevenue + settledRevenue != totalRevenue) {
+			throw new InvalidRevenueException("정산 가능 금액, 정산 신청 중 금액, 정산 완료 금액의 합은 총 수익과 같아야 합니다.");
 		}
 		this.totalRevenue = totalRevenue;
 		this.availableRevenue = availableRevenue;
+		this.reservedRevenue = reservedRevenue;
 		this.settledRevenue = settledRevenue;
 	}
 
 	public static MembershipRevenue empty(RevenueUuid revenueUuid, CreatorUuid creatorUuid) {
-		return new MembershipRevenue(revenueUuid, creatorUuid, 0L, 0L, 0L);
+		return new MembershipRevenue(revenueUuid, creatorUuid, 0L, 0L, 0L, 0L);
 	}
 
 	public static MembershipRevenue restore(
@@ -43,9 +46,17 @@ public final class MembershipRevenue {
 			CreatorUuid creatorUuid,
 			long totalRevenue,
 			long availableRevenue,
+			long reservedRevenue,
 			long settledRevenue
 	) {
-		return new MembershipRevenue(revenueUuid, creatorUuid, totalRevenue, availableRevenue, settledRevenue);
+		return new MembershipRevenue(
+				revenueUuid,
+				creatorUuid,
+				totalRevenue,
+				availableRevenue,
+				reservedRevenue,
+				settledRevenue
+		);
 	}
 
 	public MembershipRevenue record(long amount) {
@@ -57,6 +68,24 @@ public final class MembershipRevenue {
 				creatorUuid,
 				totalRevenue + amount,
 				availableRevenue + amount,
+				reservedRevenue,
+				settledRevenue
+		);
+	}
+
+	public MembershipRevenue reserve(long amount) {
+		if (amount <= 0) {
+			throw new InvalidRevenueException("정산 신청 금액은 0보다 커야 합니다.");
+		}
+		if (amount > availableRevenue) {
+			throw new InvalidRevenueException("정산 가능 금액을 초과할 수 없습니다.");
+		}
+		return new MembershipRevenue(
+				revenueUuid,
+				creatorUuid,
+				totalRevenue,
+				availableRevenue - amount,
+				reservedRevenue + amount,
 				settledRevenue
 		);
 	}
@@ -73,6 +102,7 @@ public final class MembershipRevenue {
 				creatorUuid,
 				totalRevenue,
 				availableRevenue - amount,
+				reservedRevenue,
 				settledRevenue + amount
 		);
 	}
@@ -91,6 +121,10 @@ public final class MembershipRevenue {
 
 	public long availableRevenue() {
 		return availableRevenue;
+	}
+
+	public long reservedRevenue() {
+		return reservedRevenue;
 	}
 
 	public long settledRevenue() {
