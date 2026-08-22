@@ -15,8 +15,9 @@ import com.planwith.planwith_fo_membership.application.port.out.LoadSubscription
 import com.planwith.planwith_fo_membership.application.port.out.SaveMembershipPort;
 import com.planwith.planwith_fo_membership.application.port.out.SaveSubscriptionPort;
 import com.planwith.planwith_fo_membership.domain.model.Membership;
-import com.planwith.planwith_fo_membership.domain.model.Subscription;
+import com.planwith.planwith_fo_membership.domain.model.MembershipSubscription;
 import com.planwith.planwith_fo_membership.domain.model.SubscriptionStatus;
+import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
@@ -43,25 +44,22 @@ class MembershipSubscriptionPersistenceAdapterIntegrationTest {
 		MembershipUuid membershipUuid = new MembershipUuid(UUID.fromString("99999999-9999-9999-9999-999999999999"));
 		SubscriptionUuid subscriptionUuid = new SubscriptionUuid(UUID.fromString("55555555-5555-5555-5555-555555555555"));
 
-		saveMembershipPort.save(Membership.restore(
+		saveMembershipPort.save(Membership.apply(
 				membershipUuid,
-				null,
 				creatorUuid,
 				"테스트 멤버십",
 				"설명",
 				9900,
-				"APPROVED",
-				null,
 				Instant.parse("2026-08-22T00:00:00Z")
-		));
-		saveSubscriptionPort.save(Subscription.active(
+		).approve(AdminUuid.from("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")));
+		saveSubscriptionPort.save(MembershipSubscription.active(
 				subscriptionUuid,
 				membershipUuid,
 				memberUuid,
 				Instant.parse("2026-08-22T00:01:00Z")
 		));
 
-		Subscription loaded = loadSubscriptionPort.findCurrentByMemberAndCreator(memberUuid, creatorUuid)
+		MembershipSubscription loaded = loadSubscriptionPort.findCurrentByMemberAndCreator(memberUuid, creatorUuid)
 				.orElseThrow();
 		assertThat(loaded.status()).isEqualTo(SubscriptionStatus.ACTIVE);
 		assertThat(loaded.subscriptionUuid()).isEqualTo(subscriptionUuid);

@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.planwith.planwith_fo_membership.application.port.out.LoadSubscriptionPort;
 import com.planwith.planwith_fo_membership.application.port.out.SaveSubscriptionPort;
-import com.planwith.planwith_fo_membership.domain.model.Subscription;
+import com.planwith.planwith_fo_membership.domain.model.MembershipSubscription;
 import com.planwith.planwith_fo_membership.domain.model.SubscriptionStatus;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
@@ -24,14 +24,14 @@ public class MembershipSubscriptionPersistenceAdapter implements LoadSubscriptio
 
 	@Override
 	@Transactional(readOnly = true)
-	public Optional<Subscription> findByUuid(SubscriptionUuid subscriptionUuid) {
+	public Optional<MembershipSubscription> findByUuid(SubscriptionUuid subscriptionUuid) {
 		return repository.findBySubscriptionUuid(subscriptionUuid.value())
 				.map(MembershipSubscriptionJpaEntity::toDomain);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Optional<Subscription> findCurrentByMemberAndCreator(MemberUuid memberUuid, CreatorUuid creatorUuid) {
+	public Optional<MembershipSubscription> findCurrentByMemberAndCreator(MemberUuid memberUuid, CreatorUuid creatorUuid) {
 		return repository.findCurrentByMemberAndCreator(
 						memberUuid.value(),
 						creatorUuid.value(),
@@ -42,7 +42,7 @@ public class MembershipSubscriptionPersistenceAdapter implements LoadSubscriptio
 
 	@Override
 	@Transactional
-	public void save(Subscription subscription) {
+	public void save(MembershipSubscription subscription) {
 		MembershipSubscriptionJpaEntity entity = repository
 				.findBySubscriptionUuid(subscription.subscriptionUuid().value())
 				.orElseGet(() -> MembershipSubscriptionJpaEntity.from(subscription));

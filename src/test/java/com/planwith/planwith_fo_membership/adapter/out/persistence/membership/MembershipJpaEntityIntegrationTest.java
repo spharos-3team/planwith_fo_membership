@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.planwith.planwith_fo_membership.application.port.out.SaveMembershipPort;
 import com.planwith.planwith_fo_membership.domain.model.Membership;
+import com.planwith.planwith_fo_membership.domain.model.MembershipStatus;
+import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
 
@@ -28,24 +30,22 @@ class MembershipJpaEntityIntegrationTest {
 	private SpringDataMembershipRepository repository;
 
 	@Test
-	void saveMembershipWithErdColumns() {
+	void saveMembershipStatusAsVarchar() {
 		MembershipUuid membershipUuid = new MembershipUuid(UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
-		saveMembershipPort.save(Membership.restore(
+		Membership applied = Membership.apply(
 				membershipUuid,
-				"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
 				new CreatorUuid(UUID.fromString("22222222-2222-2222-2222-222222222222")),
 				"크리에이터 멤버십",
 				"월간 멤버십",
 				12900,
-				"PENDING",
-				null,
 				Instant.parse("2026-08-22T00:00:00Z")
-		));
+		).approve(new AdminUuid(UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")));
+		saveMembershipPort.save(applied);
 
 		MembershipJpaEntity saved = repository.findByMembershipUuid(membershipUuid.value()).orElseThrow();
 		assertThat(saved.toDomain().membershipName()).isEqualTo("크리에이터 멤버십");
 		assertThat(saved.toDomain().monthlyPrice()).isEqualTo(12900);
-		assertThat(saved.toDomain().status()).isEqualTo("PENDING");
-		assertThat(saved.toDomain().adminUuid()).isEqualTo("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+		assertThat(saved.toDomain().status()).isEqualTo(MembershipStatus.APPROVED);
+		assertThat(saved.toDomain().adminUuid().toString()).isEqualTo("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 	}
 }

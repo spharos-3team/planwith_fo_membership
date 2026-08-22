@@ -11,7 +11,7 @@ import com.planwith.planwith_fo_membership.application.port.out.LoadSubscription
 import com.planwith.planwith_fo_membership.application.query.CheckContentAccessQuery;
 import com.planwith.planwith_fo_membership.application.query.ContentAccessResult;
 import com.planwith.planwith_fo_membership.domain.model.Entitlement;
-import com.planwith.planwith_fo_membership.domain.model.Subscription;
+import com.planwith.planwith_fo_membership.domain.model.MembershipSubscription;
 
 @Service
 public class CheckContentAccessQueryService implements CheckContentAccessQueryUseCase {
@@ -42,7 +42,7 @@ public class CheckContentAccessQueryService implements CheckContentAccessQueryUs
 				query.memberUuid(),
 				query.creatorUuid()
 		);
-		Subscription subscription = loadSubscriptionPort
+		MembershipSubscription subscription = loadSubscriptionPort
 				.findCurrentByMemberAndCreator(query.memberUuid(), query.creatorUuid())
 				.orElse(null);
 		Entitlement entitlement = subscription == null

@@ -19,7 +19,8 @@ import com.planwith.planwith_fo_membership.application.port.out.SaveSubscription
 import com.planwith.planwith_fo_membership.application.query.CheckContentAccessQuery;
 import com.planwith.planwith_fo_membership.application.query.ContentAccessResult;
 import com.planwith.planwith_fo_membership.domain.model.Membership;
-import com.planwith.planwith_fo_membership.domain.model.Subscription;
+import com.planwith.planwith_fo_membership.domain.model.MembershipSubscription;
+import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
@@ -62,18 +63,15 @@ class CheckContentAccessQueryServiceTest {
 
 	@Test
 	void allowsAccessWhenActiveSubscriptionExists() {
-		saveMembershipPort.save(Membership.restore(
+		saveMembershipPort.save(Membership.apply(
 				membershipUuid,
-				null,
 				creatorUuid,
 				"테스트 멤버십",
 				null,
 				9900,
-				"APPROVED",
-				null,
 				Instant.parse("2026-08-22T00:00:00Z")
-		));
-		saveSubscriptionPort.save(Subscription.active(
+		).approve(AdminUuid.from("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")));
+		saveSubscriptionPort.save(MembershipSubscription.active(
 				new SubscriptionUuid(UUID.fromString("77777777-7777-7777-7777-777777777777")),
 				membershipUuid,
 				memberUuid,

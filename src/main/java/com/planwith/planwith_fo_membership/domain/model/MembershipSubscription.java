@@ -7,8 +7,9 @@ import com.planwith.planwith_fo_membership.domain.exception.InvalidSubscriptionS
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.SubscriptionUuid;
+import com.planwith.planwith_fo_membership.domain.service.MembershipPolicy;
 
-public final class Subscription {
+public final class MembershipSubscription {
 
 	private final SubscriptionUuid subscriptionUuid;
 	private final MembershipUuid membershipUuid;
@@ -17,7 +18,7 @@ public final class Subscription {
 	private final Instant startedAt;
 	private final Instant endedAt;
 
-	private Subscription(
+	private MembershipSubscription(
 			SubscriptionUuid subscriptionUuid,
 			MembershipUuid membershipUuid,
 			MemberUuid memberUuid,
@@ -33,13 +34,25 @@ public final class Subscription {
 		this.endedAt = endedAt;
 	}
 
-	public static Subscription active(
+	public static MembershipSubscription subscribe(
+			Membership membership,
+			SubscriptionUuid subscriptionUuid,
+			MemberUuid memberUuid,
+			Instant startedAt
+	) {
+		if (!MembershipPolicy.canAcceptSubscription(membership)) {
+			throw new InvalidSubscriptionStateException("승인된 멤버십만 구독할 수 있습니다.");
+		}
+		return active(subscriptionUuid, membership.membershipUuid(), memberUuid, startedAt);
+	}
+
+	public static MembershipSubscription active(
 			SubscriptionUuid subscriptionUuid,
 			MembershipUuid membershipUuid,
 			MemberUuid memberUuid,
 			Instant startedAt
 	) {
-		return new Subscription(
+		return new MembershipSubscription(
 				subscriptionUuid,
 				membershipUuid,
 				memberUuid,
@@ -49,7 +62,7 @@ public final class Subscription {
 		);
 	}
 
-	public static Subscription restore(
+	public static MembershipSubscription restore(
 			SubscriptionUuid subscriptionUuid,
 			MembershipUuid membershipUuid,
 			MemberUuid memberUuid,
@@ -57,7 +70,7 @@ public final class Subscription {
 			Instant startedAt,
 			Instant endedAt
 	) {
-		return new Subscription(
+		return new MembershipSubscription(
 				subscriptionUuid,
 				membershipUuid,
 				memberUuid,
@@ -67,11 +80,11 @@ public final class Subscription {
 		);
 	}
 
-	public Subscription deactivate(Instant endedAt) {
+	public MembershipSubscription deactivate(Instant endedAt) {
 		if (status != SubscriptionStatus.ACTIVE) {
 			throw new InvalidSubscriptionStateException("활성 구독만 비활성화할 수 있습니다.");
 		}
-		return new Subscription(
+		return new MembershipSubscription(
 				subscriptionUuid,
 				membershipUuid,
 				memberUuid,
