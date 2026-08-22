@@ -1,5 +1,6 @@
 package com.planwith.planwith_fo_membership.application.query;
 
+import com.planwith.planwith_fo_membership.domain.model.MembershipRevenue;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
 
@@ -10,6 +11,16 @@ public record RevenueResult(
 		long availableRevenue,
 		long settledRevenue
 ) {
+
+	public static RevenueResult from(MembershipRevenue revenue) {
+		return new RevenueResult(
+				revenue.revenueUuid(),
+				revenue.creatorUuid(),
+				revenue.totalRevenue(),
+				revenue.availableRevenue(),
+				revenue.settledRevenue()
+		);
+	}
 
 	public static RevenueResult empty(CreatorUuid creatorUuid) {
 		return new RevenueResult(null, creatorUuid, 0L, 0L, 0L);

@@ -147,21 +147,21 @@ class MembershipManagementQueryControllerTest {
 	}
 
 	@Test
-	void getMyRevenueReturnsSettlementAmount() throws Exception {
+	void getMyRevenueReturnsCreatorScreenAmounts() throws Exception {
 		when(getRevenueQueryUseCase.get(any())).thenReturn(new RevenueResult(
 				RevenueUuid.from("66666666-6666-6666-6666-666666666666"),
 				CreatorUuid.from(MEMBER_UUID),
-				12900L,
-				10000L,
-				2900L
+				120_000L,
+				70_000L,
+				50_000L
 		));
 
 		mockMvc.perform(get("/api/planwith-fo-membership/memberships/me/revenue")
 						.header("X-Member-UUID", MEMBER_UUID))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.revenueUuid").value("66666666-6666-6666-6666-666666666666"))
-				.andExpect(jsonPath("$.totalRevenue").value(12900))
-				.andExpect(jsonPath("$.availableRevenue").value(10000))
-				.andExpect(jsonPath("$.settledRevenue").value(2900));
+				.andExpect(jsonPath("$.totalRevenue").value(120000))
+				.andExpect(jsonPath("$.availableRevenue").value(70000))
+				.andExpect(jsonPath("$.settledRevenue").value(50000));
 	}
 }

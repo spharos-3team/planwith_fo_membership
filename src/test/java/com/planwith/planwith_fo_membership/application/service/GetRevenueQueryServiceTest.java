@@ -38,14 +38,31 @@ class GetRevenueQueryServiceTest {
 	}
 
 	@Test
-	void returnsStoredRevenueAndSettlementAmount() {
-		revenuePort.save(MembershipRevenue.empty(revenueUuid, creatorUuid).record(12900L).settle(2900L));
+	void returnsTotalAvailableAndSettledRevenueForCreatorScreen() {
+		revenuePort.save(MembershipRevenue.empty(revenueUuid, creatorUuid).record(120_000L).settle(50_000L));
 
 		RevenueResult result = service.get(new GetRevenueQuery(creatorUuid));
 
 		assertThat(result.revenueUuid()).isEqualTo(revenueUuid);
-		assertThat(result.totalRevenue()).isEqualTo(12900L);
-		assertThat(result.availableRevenue()).isEqualTo(10000L);
-		assertThat(result.settledRevenue()).isEqualTo(2900L);
+		assertThat(result.totalRevenue()).isEqualTo(120_000L);
+		assertThat(result.availableRevenue()).isEqualTo(70_000L);
+		assertThat(result.settledRevenue()).isEqualTo(50_000L);
+		assertThat(result.availableRevenue() + result.settledRevenue()).isEqualTo(result.totalRevenue());
+		assertThat(revenuePort.findByUuid(revenueUuid).orElseThrow().availableRevenue()).isEqualTo(70_000L);
+	}
+
+	@Test
+	void doesNotExposeOtherCreatorRevenue() {
+		revenuePort.save(MembershipRevenue.empty(revenueUuid, creatorUuid).record(120_000L).settle(50_000L));
+		revenuePort.save(MembershipRevenue.empty(
+				RevenueUuid.from("77777777-7777-7777-7777-777777777777"),
+				CreatorUuid.from("33333333-3333-3333-3333-333333333333")
+		).record(3_000L));
+
+		RevenueResult result = service.get(new GetRevenueQuery(creatorUuid));
+
+		assertThat(result.totalRevenue()).isEqualTo(120_000L);
+		assertThat(result.availableRevenue()).isEqualTo(70_000L);
+		assertThat(result.settledRevenue()).isEqualTo(50_000L);
 	}
 }

@@ -133,12 +133,12 @@ public class MembershipManagementQueryController {
 		return ResponseEntity.ok(response);
 	}
 
-	// 수익 및 정산 가능 금액 조회
+	// Creator 수익 조회
 	@GetMapping("/memberships/me/revenue")
 	public ResponseEntity<RevenueResponse> getMyRevenue(
 			@RequestHeader("X-Member-UUID") UUID memberUuid
 	) {
-		log.info("MembershipManagementQueryController : GET getMyRevenue : 수익 조회 요청 - memberUuid={}", memberUuid);
+		log.info("MembershipManagementQueryController : GET getMyRevenue : Creator 수익 조회 요청 - memberUuid={}", memberUuid);
 		RevenueResult result = getRevenueQueryUseCase.get(new GetRevenueQuery(new CreatorUuid(memberUuid)));
 		RevenueResponse response = new RevenueResponse(
 				result.revenueUuid() == null ? null : result.revenueUuid().value(),
@@ -147,9 +147,11 @@ public class MembershipManagementQueryController {
 				result.settledRevenue()
 		);
 		log.info(
-				"MembershipManagementQueryController : GET getMyRevenue : 수익 조회 완료 - memberUuid={}, availableRevenue={}",
+				"MembershipManagementQueryController : GET getMyRevenue : Creator 수익 조회 완료 - memberUuid={}, totalRevenue={}, availableRevenue={}, settledRevenue={}",
 				memberUuid,
-				response.availableRevenue()
+				response.totalRevenue(),
+				response.availableRevenue(),
+				response.settledRevenue()
 		);
 		return ResponseEntity.ok(response);
 	}
