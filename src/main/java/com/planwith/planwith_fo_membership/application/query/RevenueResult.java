@@ -9,6 +9,7 @@ public record RevenueResult(
 		CreatorUuid creatorUuid,
 		long totalRevenue,
 		long availableRevenue,
+		long reservedRevenue,
 		long settledRevenue
 ) {
 
@@ -18,11 +19,12 @@ public record RevenueResult(
 				revenue.creatorUuid(),
 				revenue.totalRevenue(),
 				revenue.availableRevenue(),
+				revenue.reservedRevenue(),
 				revenue.settledRevenue()
 		);
 	}
 
 	public static RevenueResult empty(CreatorUuid creatorUuid) {
-		return new RevenueResult(null, creatorUuid, 0L, 0L, 0L);
+		return new RevenueResult(null, creatorUuid, 0L, 0L, 0L, 0L);
 	}
 }

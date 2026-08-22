@@ -15,6 +15,9 @@ public record RevenueResponse(
 		@Schema(description = "정산 가능 수익(원)")
 		long availableRevenue,
 
+		@Schema(description = "정산 신청 중 금액(원)")
+		long reservedRevenue,
+
 		@Schema(description = "정산 완료 수익(원)")
 		long settledRevenue
 ) {

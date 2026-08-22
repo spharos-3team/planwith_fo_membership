@@ -52,4 +52,33 @@ class MembershipRevenueTest {
 		assertThatThrownBy(() -> revenue.settle(1001L))
 				.isInstanceOf(InvalidRevenueException.class);
 	}
+
+	@Test
+	void reserveMovesAvailableToReservedWithoutSettling() {
+		MembershipRevenue revenue = MembershipRevenue.empty(
+						new RevenueUuid(UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc")),
+						new CreatorUuid(UUID.fromString("22222222-2222-2222-2222-222222222222"))
+				)
+				.record(50_000L)
+				.reserve(30_000L);
+
+		assertThat(revenue.totalRevenue()).isEqualTo(50_000L);
+		assertThat(revenue.availableRevenue()).isEqualTo(20_000L);
+		assertThat(revenue.reservedRevenue()).isEqualTo(30_000L);
+		assertThat(revenue.settledRevenue()).isZero();
+	}
+
+	@Test
+	void reserveRejectsAmountGreaterThanAvailable() {
+		MembershipRevenue revenue = MembershipRevenue.empty(
+						new RevenueUuid(UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc")),
+						new CreatorUuid(UUID.fromString("22222222-2222-2222-2222-222222222222"))
+				)
+				.record(50_000L)
+				.reserve(30_000L);
+
+		assertThatThrownBy(() -> revenue.reserve(30_000L))
+				.isInstanceOf(InvalidRevenueException.class)
+				.hasMessage("정산 가능 금액을 초과할 수 없습니다.");
+	}
 }

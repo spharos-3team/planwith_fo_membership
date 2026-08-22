@@ -153,6 +153,7 @@ class MembershipManagementQueryControllerTest {
 				CreatorUuid.from(MEMBER_UUID),
 				120_000L,
 				70_000L,
+				0L,
 				50_000L
 		));
 
@@ -162,6 +163,7 @@ class MembershipManagementQueryControllerTest {
 				.andExpect(jsonPath("$.revenueUuid").value("66666666-6666-6666-6666-666666666666"))
 				.andExpect(jsonPath("$.totalRevenue").value(120000))
 				.andExpect(jsonPath("$.availableRevenue").value(70000))
+				.andExpect(jsonPath("$.reservedRevenue").value(0))
 				.andExpect(jsonPath("$.settledRevenue").value(50000));
 	}
 }

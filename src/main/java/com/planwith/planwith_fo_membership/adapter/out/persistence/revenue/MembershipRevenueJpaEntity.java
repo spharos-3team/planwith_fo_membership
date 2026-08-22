@@ -46,6 +46,9 @@ class MembershipRevenueJpaEntity {
 	@Column(name = "available_revenue", nullable = false)
 	private Long availableRevenue;
 
+	@Column(name = "reserved_revenue", nullable = false)
+	private Long reservedRevenue = 0L;
+
 	@Column(name = "settled_revenue", nullable = false)
 	private Long settledRevenue;
 
@@ -63,6 +66,7 @@ class MembershipRevenueJpaEntity {
 		this.creatorUuid = revenue.creatorUuid().value();
 		this.totalRevenue = revenue.totalRevenue();
 		this.availableRevenue = revenue.availableRevenue();
+		this.reservedRevenue = revenue.reservedRevenue();
 		this.settledRevenue = revenue.settledRevenue();
 	}
 
@@ -72,6 +76,7 @@ class MembershipRevenueJpaEntity {
 				new CreatorUuid(creatorUuid),
 				totalRevenue,
 				availableRevenue,
+				reservedRevenue == null ? 0L : reservedRevenue,
 				settledRevenue
 		);
 	}
