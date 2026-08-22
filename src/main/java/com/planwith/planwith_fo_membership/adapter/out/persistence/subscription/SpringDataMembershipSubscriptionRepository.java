@@ -1,5 +1,6 @@
 package com.planwith.planwith_fo_membership.adapter.out.persistence.subscription;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,6 +31,39 @@ interface SpringDataMembershipSubscriptionRepository extends JpaRepository<Membe
 			""")
 	Optional<MembershipSubscriptionJpaEntity> findCurrentByMemberAndCreator(
 			@Param("memberUuid") UUID memberUuid,
+			@Param("creatorUuid") UUID creatorUuid,
+			@Param("status") SubscriptionStatus status
+	);
+
+	@Query("""
+			select
+				subscription.subscriptionUuid as subscriptionUuid,
+				subscription.membershipUuid as membershipUuid,
+				membership.creatorUuid as creatorUuid,
+				membership.membershipName as membershipName,
+				membership.monthlyPrice as monthlyPrice,
+				subscription.status as status,
+				subscription.startedAt as startedAt
+			from MembershipSubscriptionJpaEntity subscription, MembershipJpaEntity membership
+			where subscription.membershipUuid = membership.membershipUuid
+				and subscription.memberUuid = :memberUuid
+				and subscription.status = :status
+			order by subscription.startedAt desc
+			""")
+	List<JoinedMembershipRow> findJoinedByMemberUuid(
+			@Param("memberUuid") UUID memberUuid,
+			@Param("status") SubscriptionStatus status
+	);
+
+	@Query("""
+			select subscription
+			from MembershipSubscriptionJpaEntity subscription, MembershipJpaEntity membership
+			where subscription.membershipUuid = membership.membershipUuid
+				and membership.creatorUuid = :creatorUuid
+				and subscription.status = :status
+			order by subscription.startedAt desc
+			""")
+	List<MembershipSubscriptionJpaEntity> findActiveByCreatorUuid(
 			@Param("creatorUuid") UUID creatorUuid,
 			@Param("status") SubscriptionStatus status
 	);
