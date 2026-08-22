@@ -13,6 +13,8 @@ public final class MembershipEventTypes {
 	public static final String SETTLEMENT_COMPLETED = "SettlementCompleted";
 
 	public static final String TOKEN_DEDUCTION_REQUESTED = "TokenDeductionRequested";
+	public static final String TOKEN_DEDUCTION_SUCCEEDED = "TokenDeductionSucceeded";
+	public static final String TOKEN_DEDUCTION_FAILED = "TokenDeductionFailed";
 	public static final String PAYMENT_COMPLETED = "PaymentCompleted";
 	public static final String PAYMENT_FAILED = "PaymentFailed";
 	public static final String PAYMENT_REFUNDED = "PaymentRefunded";

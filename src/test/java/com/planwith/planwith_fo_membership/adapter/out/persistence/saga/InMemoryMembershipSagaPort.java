@@ -10,6 +10,7 @@ import com.planwith.planwith_fo_membership.application.port.out.SaveMembershipSa
 import com.planwith.planwith_fo_membership.domain.model.MembershipSaga;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.PaymentUuid;
 
 public class InMemoryMembershipSagaPort implements LoadMembershipSagaPort, SaveMembershipSagaPort {
 
@@ -26,6 +27,13 @@ public class InMemoryMembershipSagaPort implements LoadMembershipSagaPort, SaveM
 				.filter(saga -> saga.memberUuid().equals(memberUuid))
 				.filter(saga -> saga.creatorUuid().equals(creatorUuid))
 				.filter(MembershipSaga::isPaymentInProgress)
+				.findFirst();
+	}
+
+	@Override
+	public Optional<MembershipSaga> findByPaymentUuid(PaymentUuid paymentUuid) {
+		return sagas.values().stream()
+				.filter(saga -> paymentUuid.equals(saga.paymentUuid()))
 				.findFirst();
 	}
 }

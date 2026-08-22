@@ -12,6 +12,7 @@ import com.planwith.planwith_fo_membership.domain.model.MembershipSaga;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSagaStatus;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.PaymentUuid;
 
 @Component
 public class MembershipSagaPersistenceAdapter implements LoadMembershipSagaPort, SaveMembershipSagaPort {
@@ -35,6 +36,13 @@ public class MembershipSagaPersistenceAdapter implements LoadMembershipSagaPort,
 						creatorUuid.value(),
 						IN_PROGRESS
 				)
+				.map(MembershipSagaJpaEntity::toDomain);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<MembershipSaga> findByPaymentUuid(PaymentUuid paymentUuid) {
+		return repository.findFirstByPaymentUuidOrderByUpdatedAtDesc(paymentUuid.value())
 				.map(MembershipSagaJpaEntity::toDomain);
 	}
 

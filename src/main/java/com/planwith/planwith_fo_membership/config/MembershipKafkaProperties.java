@@ -26,6 +26,8 @@ public class MembershipKafkaProperties {
 
 	public static class Topics {
 		private String tokenDeductionRequested = "planwith.token.deduction-requested";
+		private String tokenDeductionSucceeded = "planwith.token.deduction-succeeded";
+		private String tokenDeductionFailed = "planwith.token.deduction-failed";
 		private String paymentCompleted = "planwith.payment.completed";
 		private String paymentFailed = "planwith.payment.failed";
 		private String paymentRefunded = "planwith.payment.refunded";
@@ -41,6 +43,22 @@ public class MembershipKafkaProperties {
 
 		public void setTokenDeductionRequested(String tokenDeductionRequested) {
 			this.tokenDeductionRequested = tokenDeductionRequested;
+		}
+
+		public String getTokenDeductionSucceeded() {
+			return tokenDeductionSucceeded;
+		}
+
+		public void setTokenDeductionSucceeded(String tokenDeductionSucceeded) {
+			this.tokenDeductionSucceeded = tokenDeductionSucceeded;
+		}
+
+		public String getTokenDeductionFailed() {
+			return tokenDeductionFailed;
+		}
+
+		public void setTokenDeductionFailed(String tokenDeductionFailed) {
+			this.tokenDeductionFailed = tokenDeductionFailed;
 		}
 
 		public String getPaymentCompleted() {
