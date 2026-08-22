@@ -1,3 +1,43 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:membership;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  cloud:
+    discovery:
+      enabled: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    listener:
+      auto-startup: false
+    admin:
+      fail-fast: false
+      auto-create: false
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+server:
+  port: 0
+
 eureka:
   client:
+    enabled: false
+
+management:
+  health:
+    kafka:
+      enabled: false
+    redis:
+      enabled: false
+
+membership:
+  kafka:
+    consumer-enabled: false
+  outbox:
     enabled: false
