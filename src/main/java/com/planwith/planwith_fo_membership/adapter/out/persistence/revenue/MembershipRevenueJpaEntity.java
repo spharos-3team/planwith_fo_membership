@@ -13,6 +13,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+import com.planwith.planwith_fo_membership.domain.model.MembershipRevenue;
+import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
+
 @Entity
 @Table(
 		name = "membership_revenue",
@@ -48,41 +52,27 @@ class MembershipRevenueJpaEntity {
 	protected MembershipRevenueJpaEntity() {
 	}
 
-	MembershipRevenueJpaEntity(
-			UUID revenueUuid,
-			UUID creatorUuid,
-			Long totalRevenue,
-			Long availableRevenue,
-			Long settledRevenue
-	) {
-		this.revenueUuid = revenueUuid;
-		this.creatorUuid = creatorUuid;
-		this.totalRevenue = totalRevenue;
-		this.availableRevenue = availableRevenue;
-		this.settledRevenue = settledRevenue;
+	static MembershipRevenueJpaEntity from(MembershipRevenue revenue) {
+		MembershipRevenueJpaEntity entity = new MembershipRevenueJpaEntity();
+		entity.apply(revenue);
+		return entity;
 	}
 
-	Long revenueId() {
-		return revenueId;
+	void apply(MembershipRevenue revenue) {
+		this.revenueUuid = revenue.revenueUuid().value();
+		this.creatorUuid = revenue.creatorUuid().value();
+		this.totalRevenue = revenue.totalRevenue();
+		this.availableRevenue = revenue.availableRevenue();
+		this.settledRevenue = revenue.settledRevenue();
 	}
 
-	UUID revenueUuid() {
-		return revenueUuid;
-	}
-
-	UUID creatorUuid() {
-		return creatorUuid;
-	}
-
-	Long totalRevenue() {
-		return totalRevenue;
-	}
-
-	Long availableRevenue() {
-		return availableRevenue;
-	}
-
-	Long settledRevenue() {
-		return settledRevenue;
+	MembershipRevenue toDomain() {
+		return MembershipRevenue.restore(
+				new RevenueUuid(revenueUuid),
+				new CreatorUuid(creatorUuid),
+				totalRevenue,
+				availableRevenue,
+				settledRevenue
+		);
 	}
 }

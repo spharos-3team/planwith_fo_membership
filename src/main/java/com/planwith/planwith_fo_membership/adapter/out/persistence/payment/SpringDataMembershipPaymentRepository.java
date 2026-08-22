@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 interface SpringDataMembershipPaymentRepository extends JpaRepository<MembershipPaymentJpaEntity, Long> {
 
 	Optional<MembershipPaymentJpaEntity> findByPaymentUuid(UUID paymentUuid);
+
+	Optional<MembershipPaymentJpaEntity> findFirstBySubscriptionUuidOrderByPaymentIdDesc(UUID subscriptionUuid);
 }

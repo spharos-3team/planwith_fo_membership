@@ -17,7 +17,11 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+import com.planwith.planwith_fo_membership.domain.model.MembershipSettlement;
 import com.planwith.planwith_fo_membership.domain.model.SettlementStatus;
+import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
+import com.planwith.planwith_fo_membership.domain.model.vo.SettlementUuid;
 
 @Entity
 @Table(
@@ -69,65 +73,35 @@ class MembershipSettlementJpaEntity {
 	protected MembershipSettlementJpaEntity() {
 	}
 
-	MembershipSettlementJpaEntity(
-			UUID settlementUuid,
-			UUID creatorUuid,
-			UUID revenueUuid,
-			Long settlementAmount,
-			SettlementStatus settlementStatus,
-			Instant requestedAt,
-			Instant approvedAt,
-			Instant paidAt,
-			String rejectReason
-	) {
-		this.settlementUuid = settlementUuid;
-		this.creatorUuid = creatorUuid;
-		this.revenueUuid = revenueUuid;
-		this.settlementAmount = settlementAmount;
-		this.settlementStatus = settlementStatus;
-		this.requestedAt = requestedAt;
-		this.approvedAt = approvedAt;
-		this.paidAt = paidAt;
-		this.rejectReason = rejectReason;
+	static MembershipSettlementJpaEntity from(MembershipSettlement settlement) {
+		MembershipSettlementJpaEntity entity = new MembershipSettlementJpaEntity();
+		entity.apply(settlement);
+		return entity;
 	}
 
-	Long settlementId() {
-		return settlementId;
+	void apply(MembershipSettlement settlement) {
+		this.settlementUuid = settlement.settlementUuid().value();
+		this.creatorUuid = settlement.creatorUuid().value();
+		this.revenueUuid = settlement.revenueUuid().value();
+		this.settlementAmount = settlement.settlementAmount();
+		this.settlementStatus = settlement.settlementStatus();
+		this.requestedAt = settlement.requestedAt();
+		this.approvedAt = settlement.approvedAt();
+		this.paidAt = settlement.paidAt();
+		this.rejectReason = settlement.rejectReason();
 	}
 
-	UUID settlementUuid() {
-		return settlementUuid;
-	}
-
-	UUID creatorUuid() {
-		return creatorUuid;
-	}
-
-	UUID revenueUuid() {
-		return revenueUuid;
-	}
-
-	Long settlementAmount() {
-		return settlementAmount;
-	}
-
-	SettlementStatus settlementStatus() {
-		return settlementStatus;
-	}
-
-	Instant requestedAt() {
-		return requestedAt;
-	}
-
-	Instant approvedAt() {
-		return approvedAt;
-	}
-
-	Instant paidAt() {
-		return paidAt;
-	}
-
-	String rejectReason() {
-		return rejectReason;
+	MembershipSettlement toDomain() {
+		return MembershipSettlement.restore(
+				new SettlementUuid(settlementUuid),
+				new CreatorUuid(creatorUuid),
+				new RevenueUuid(revenueUuid),
+				settlementAmount,
+				settlementStatus,
+				requestedAt,
+				approvedAt,
+				paidAt,
+				rejectReason
+		);
 	}
 }
