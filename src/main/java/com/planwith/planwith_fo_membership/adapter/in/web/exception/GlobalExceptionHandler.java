@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.planwith.planwith_fo_membership.adapter.in.web.dto.ApiErrorResponse;
 import com.planwith.planwith_fo_membership.domain.exception.DuplicateMembershipApplicationException;
+import com.planwith.planwith_fo_membership.domain.exception.DuplicateSubscriptionException;
+import com.planwith.planwith_fo_membership.domain.exception.FollowRequiredException;
 import com.planwith.planwith_fo_membership.domain.exception.InsufficientMembershipGradeException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidCredentialsException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidMembershipPriceException;
@@ -35,9 +37,19 @@ public class GlobalExceptionHandler {
 		return createErrorResponse(HttpStatus.FORBIDDEN, "INSUFFICIENT_MEMBERSHIP_GRADE", exception.getMessage());
 	}
 
+	@ExceptionHandler(FollowRequiredException.class)
+	public ResponseEntity<ApiErrorResponse> handleFollowRequired(FollowRequiredException exception) {
+		return createErrorResponse(HttpStatus.FORBIDDEN, "FOLLOW_REQUIRED", exception.getMessage());
+	}
+
 	@ExceptionHandler(DuplicateMembershipApplicationException.class)
 	public ResponseEntity<ApiErrorResponse> handleDuplicateMembershipApplication(DuplicateMembershipApplicationException exception) {
 		return createErrorResponse(HttpStatus.CONFLICT, "DUPLICATE_MEMBERSHIP_APPLICATION", exception.getMessage());
+	}
+
+	@ExceptionHandler(DuplicateSubscriptionException.class)
+	public ResponseEntity<ApiErrorResponse> handleDuplicateSubscription(DuplicateSubscriptionException exception) {
+		return createErrorResponse(HttpStatus.CONFLICT, "DUPLICATE_SUBSCRIPTION", exception.getMessage());
 	}
 
 	@ExceptionHandler(InvalidMembershipPriceException.class)
