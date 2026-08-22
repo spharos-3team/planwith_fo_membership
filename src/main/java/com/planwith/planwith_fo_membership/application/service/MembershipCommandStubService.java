@@ -5,11 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.planwith.planwith_fo_membership.application.command.CreateMembershipCommand;
-import com.planwith.planwith_fo_membership.application.command.ProcessSettlementCommand;
 import com.planwith.planwith_fo_membership.application.command.SubscribeMembershipCommand;
 import com.planwith.planwith_fo_membership.application.command.UpdateMembershipCommand;
 import com.planwith.planwith_fo_membership.application.port.in.command.CreateMembershipUseCase;
-import com.planwith.planwith_fo_membership.application.port.in.command.ProcessSettlementUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.SubscribeMembershipUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.UpdateMembershipUseCase;
 import com.planwith.planwith_fo_membership.domain.exception.UnsupportedMembershipOperationException;
@@ -18,8 +16,7 @@ import com.planwith.planwith_fo_membership.domain.exception.UnsupportedMembershi
 public class MembershipCommandStubService implements
 		CreateMembershipUseCase,
 		UpdateMembershipUseCase,
-		SubscribeMembershipUseCase,
-		ProcessSettlementUseCase {
+		SubscribeMembershipUseCase {
 
 	private static final Logger log = LoggerFactory.getLogger(MembershipCommandStubService.class);
 
@@ -42,13 +39,6 @@ public class MembershipCommandStubService implements
 				command.memberUuid()
 		);
 		throw unsupported("멤버십 구독 Saga");
-	}
-
-	@Override
-	public void process(ProcessSettlementCommand command) {
-		log.debug("MembershipCommandStubService : process : 정산 처리는 후속 이슈에서 구현한다 - settlementUuid={}",
-				command.settlementUuid());
-		throw unsupported("정산 처리");
 	}
 
 	private static UnsupportedMembershipOperationException unsupported(String operation) {

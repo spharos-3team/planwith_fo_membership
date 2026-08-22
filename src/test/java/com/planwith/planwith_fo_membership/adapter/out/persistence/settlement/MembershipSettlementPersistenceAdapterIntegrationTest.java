@@ -14,6 +14,7 @@ import com.planwith.planwith_fo_membership.application.port.out.LoadSettlementPo
 import com.planwith.planwith_fo_membership.application.port.out.SaveSettlementPort;
 import com.planwith.planwith_fo_membership.domain.model.MembershipSettlement;
 import com.planwith.planwith_fo_membership.domain.model.SettlementStatus;
+import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.SettlementUuid;
@@ -48,11 +49,12 @@ class MembershipSettlementPersistenceAdapterIntegrationTest {
 		assertThat(requested.settlementStatus()).isEqualTo(SettlementStatus.REQUESTED);
 		assertThat(requested.approvedAt()).isNull();
 
-		saveSettlementPort.save(requested.approve(approvedAt));
+		saveSettlementPort.save(requested.approve(AdminUuid.from("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), approvedAt));
 		MembershipSettlement approved = loadSettlementPort.findByUuid(settlementUuid).orElseThrow();
 		assertThat(approved.settlementAmount()).isEqualTo(10000L);
 		assertThat(approved.settlementStatus()).isEqualTo(SettlementStatus.APPROVED);
 		assertThat(approved.approvedAt()).isEqualTo(approvedAt);
+		assertThat(approved.processedBy()).isEqualTo(AdminUuid.from("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"));
 		assertThat(approved.creatorUuid()).isEqualTo(creatorUuid);
 		assertThat(approved.revenueUuid()).isEqualTo(revenueUuid);
 	}

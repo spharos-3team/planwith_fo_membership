@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 import com.planwith.planwith_fo_membership.domain.exception.InvalidSettlementStateException;
+import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.SettlementUuid;
@@ -21,6 +22,7 @@ public final class MembershipSettlement {
 	private final Instant approvedAt;
 	private final Instant paidAt;
 	private final String rejectReason;
+	private final AdminUuid processedBy;
 
 	private MembershipSettlement(
 			SettlementUuid settlementUuid,
@@ -31,7 +33,8 @@ public final class MembershipSettlement {
 			Instant requestedAt,
 			Instant approvedAt,
 			Instant paidAt,
-			String rejectReason
+			String rejectReason,
+			AdminUuid processedBy
 	) {
 		this.settlementUuid = Objects.requireNonNull(settlementUuid, "Settlement UUID is required.");
 		this.creatorUuid = Objects.requireNonNull(creatorUuid, "Creator UUID is required.");
@@ -42,6 +45,7 @@ public final class MembershipSettlement {
 		this.approvedAt = approvedAt;
 		this.paidAt = paidAt;
 		this.rejectReason = rejectReason;
+		this.processedBy = processedBy;
 	}
 
 	public static MembershipSettlement request(
@@ -60,6 +64,7 @@ public final class MembershipSettlement {
 				requestedAt,
 				null,
 				null,
+				null,
 				null
 		);
 	}
@@ -73,7 +78,8 @@ public final class MembershipSettlement {
 			Instant requestedAt,
 			Instant approvedAt,
 			Instant paidAt,
-			String rejectReason
+			String rejectReason,
+			AdminUuid processedBy
 	) {
 		return new MembershipSettlement(
 				settlementUuid,
@@ -84,11 +90,12 @@ public final class MembershipSettlement {
 				requestedAt,
 				approvedAt,
 				paidAt,
-				rejectReason
+				rejectReason,
+				processedBy
 		);
 	}
 
-	public MembershipSettlement approve(Instant approvedAt) {
+	public MembershipSettlement approve(AdminUuid adminUuid, Instant approvedAt) {
 		if (settlementStatus != SettlementStatus.REQUESTED) {
 			throw new InvalidSettlementStateException("신청된 정산만 승인할 수 있습니다.");
 		}
@@ -101,11 +108,12 @@ public final class MembershipSettlement {
 				requestedAt,
 				Objects.requireNonNull(approvedAt, "Approved at is required."),
 				null,
-				null
+				null,
+				Objects.requireNonNull(adminUuid, "Admin UUID is required.")
 		);
 	}
 
-	public MembershipSettlement reject(String reason) {
+	public MembershipSettlement reject(AdminUuid adminUuid, String reason) {
 		if (settlementStatus != SettlementStatus.REQUESTED) {
 			throw new InvalidSettlementStateException("신청된 정산만 거절할 수 있습니다.");
 		}
@@ -118,11 +126,12 @@ public final class MembershipSettlement {
 				requestedAt,
 				null,
 				null,
-				requireRejectReason(reason)
+				requireRejectReason(reason),
+				Objects.requireNonNull(adminUuid, "Admin UUID is required.")
 		);
 	}
 
-	public MembershipSettlement pay(Instant paidAt) {
+	public MembershipSettlement pay(AdminUuid adminUuid, Instant paidAt) {
 		if (settlementStatus != SettlementStatus.APPROVED) {
 			throw new InvalidSettlementStateException("승인된 정산만 지급 완료할 수 있습니다.");
 		}
@@ -135,7 +144,8 @@ public final class MembershipSettlement {
 				requestedAt,
 				approvedAt,
 				Objects.requireNonNull(paidAt, "Paid at is required."),
-				null
+				null,
+				Objects.requireNonNull(adminUuid, "Admin UUID is required.")
 		);
 	}
 
@@ -173,6 +183,10 @@ public final class MembershipSettlement {
 
 	public String rejectReason() {
 		return rejectReason;
+	}
+
+	public AdminUuid processedBy() {
+		return processedBy;
 	}
 
 	private static long requireAmount(long settlementAmount) {
