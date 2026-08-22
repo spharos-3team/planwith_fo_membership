@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.planwith.planwith_fo_membership.adapter.in.web.dto.ApiErrorResponse;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidCredentialsException;
+import com.planwith.planwith_fo_membership.domain.exception.InvalidMembershipStateException;
+import com.planwith.planwith_fo_membership.domain.exception.InvalidPaymentStateException;
+import com.planwith.planwith_fo_membership.domain.exception.InvalidRevenueException;
+import com.planwith.planwith_fo_membership.domain.exception.InvalidSettlementStateException;
 import com.planwith.planwith_fo_membership.domain.exception.InvalidSubscriptionStateException;
 import com.planwith.planwith_fo_membership.domain.exception.UnsupportedMembershipOperationException;
 
@@ -22,9 +26,29 @@ public class GlobalExceptionHandler {
 		return createErrorResponse(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", exception.getMessage());
 	}
 
+	@ExceptionHandler(InvalidMembershipStateException.class)
+	public ResponseEntity<ApiErrorResponse> handleInvalidMembershipState(InvalidMembershipStateException exception) {
+		return createErrorResponse(HttpStatus.CONFLICT, "INVALID_MEMBERSHIP_STATE", exception.getMessage());
+	}
+
 	@ExceptionHandler(InvalidSubscriptionStateException.class)
 	public ResponseEntity<ApiErrorResponse> handleInvalidSubscriptionState(InvalidSubscriptionStateException exception) {
 		return createErrorResponse(HttpStatus.CONFLICT, "INVALID_SUBSCRIPTION_STATE", exception.getMessage());
+	}
+
+	@ExceptionHandler(InvalidPaymentStateException.class)
+	public ResponseEntity<ApiErrorResponse> handleInvalidPaymentState(InvalidPaymentStateException exception) {
+		return createErrorResponse(HttpStatus.CONFLICT, "INVALID_PAYMENT_STATE", exception.getMessage());
+	}
+
+	@ExceptionHandler(InvalidRevenueException.class)
+	public ResponseEntity<ApiErrorResponse> handleInvalidRevenue(InvalidRevenueException exception) {
+		return createErrorResponse(HttpStatus.CONFLICT, "INVALID_REVENUE", exception.getMessage());
+	}
+
+	@ExceptionHandler(InvalidSettlementStateException.class)
+	public ResponseEntity<ApiErrorResponse> handleInvalidSettlementState(InvalidSettlementStateException exception) {
+		return createErrorResponse(HttpStatus.CONFLICT, "INVALID_SETTLEMENT_STATE", exception.getMessage());
 	}
 
 	@ExceptionHandler(UnsupportedMembershipOperationException.class)

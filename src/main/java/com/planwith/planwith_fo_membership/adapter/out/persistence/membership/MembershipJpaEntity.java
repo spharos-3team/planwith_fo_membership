@@ -16,6 +16,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 import com.planwith.planwith_fo_membership.domain.model.Membership;
+import com.planwith.planwith_fo_membership.domain.model.MembershipStatus;
+import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
 
@@ -77,12 +79,12 @@ class MembershipJpaEntity {
 
 	void apply(Membership membership) {
 		this.membershipUuid = membership.membershipUuid().value();
-		this.adminUuid = membership.adminUuid() == null ? null : UUID.fromString(membership.adminUuid());
+		this.adminUuid = membership.adminUuid() == null ? null : membership.adminUuid().value();
 		this.creatorUuid = membership.creatorUuid().value();
 		this.membershipName = membership.membershipName();
 		this.description = membership.description();
 		this.monthlyPrice = membership.monthlyPrice();
-		this.status = membership.status();
+		this.status = membership.status().name();
 		this.rejectReason = membership.rejectReason();
 		this.createAt = membership.createAt();
 	}
@@ -90,12 +92,12 @@ class MembershipJpaEntity {
 	Membership toDomain() {
 		return Membership.restore(
 				new MembershipUuid(membershipUuid),
-				adminUuid == null ? null : adminUuid.toString(),
+				adminUuid == null ? null : new AdminUuid(adminUuid),
 				new CreatorUuid(creatorUuid),
 				membershipName,
 				description,
 				monthlyPrice,
-				status,
+				MembershipStatus.valueOf(status),
 				rejectReason,
 				createAt
 		);

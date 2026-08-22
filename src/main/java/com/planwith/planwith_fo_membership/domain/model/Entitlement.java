@@ -18,7 +18,7 @@ public final class Entitlement {
 		this.allowed = allowed;
 	}
 
-	public static Entitlement from(Subscription subscription, CreatorUuid creatorUuid) {
+	public static Entitlement from(MembershipSubscription subscription, CreatorUuid creatorUuid) {
 		Objects.requireNonNull(subscription, "Subscription is required.");
 		return new Entitlement(
 				subscription.memberUuid(),

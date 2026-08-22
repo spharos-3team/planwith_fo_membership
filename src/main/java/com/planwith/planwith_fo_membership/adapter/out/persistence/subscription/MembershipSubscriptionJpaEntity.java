@@ -17,7 +17,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-import com.planwith.planwith_fo_membership.domain.model.Subscription;
+import com.planwith.planwith_fo_membership.domain.model.MembershipSubscription;
 import com.planwith.planwith_fo_membership.domain.model.SubscriptionStatus;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
@@ -67,13 +67,13 @@ class MembershipSubscriptionJpaEntity {
 	protected MembershipSubscriptionJpaEntity() {
 	}
 
-	static MembershipSubscriptionJpaEntity from(Subscription subscription) {
+	static MembershipSubscriptionJpaEntity from(MembershipSubscription subscription) {
 		MembershipSubscriptionJpaEntity entity = new MembershipSubscriptionJpaEntity();
 		entity.apply(subscription);
 		return entity;
 	}
 
-	void apply(Subscription subscription) {
+	void apply(MembershipSubscription subscription) {
 		this.subscriptionUuid = subscription.subscriptionUuid().value();
 		this.membershipUuid = subscription.membershipUuid().value();
 		this.memberUuid = subscription.memberUuid().value();
@@ -82,8 +82,8 @@ class MembershipSubscriptionJpaEntity {
 		this.endedAt = subscription.endedAt();
 	}
 
-	Subscription toDomain() {
-		return Subscription.restore(
+	MembershipSubscription toDomain() {
+		return MembershipSubscription.restore(
 				new SubscriptionUuid(subscriptionUuid),
 				new MembershipUuid(membershipUuid),
 				new MemberUuid(memberUuid),
