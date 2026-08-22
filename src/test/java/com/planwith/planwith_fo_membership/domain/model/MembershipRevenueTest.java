@@ -14,6 +14,20 @@ import com.planwith.planwith_fo_membership.domain.model.vo.RevenueUuid;
 class MembershipRevenueTest {
 
 	@Test
+	void recordThenSettleKeepsCreatorScreenBalance() {
+		MembershipRevenue revenue = MembershipRevenue.empty(
+						new RevenueUuid(UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc")),
+						new CreatorUuid(UUID.fromString("22222222-2222-2222-2222-222222222222"))
+				)
+				.record(120_000L)
+				.settle(50_000L);
+
+		assertThat(revenue.totalRevenue()).isEqualTo(120_000L);
+		assertThat(revenue.availableRevenue()).isEqualTo(70_000L);
+		assertThat(revenue.settledRevenue()).isEqualTo(50_000L);
+	}
+
+	@Test
 	void recordThenSettleKeepsBalance() {
 		MembershipRevenue revenue = MembershipRevenue.empty(
 						new RevenueUuid(UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc")),

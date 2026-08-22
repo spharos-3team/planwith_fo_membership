@@ -25,19 +25,14 @@ public class GetRevenueQueryService implements GetRevenueQueryUseCase {
 	@Transactional(readOnly = true)
 	public RevenueResult get(GetRevenueQuery query) {
 		RevenueResult result = loadRevenuePort.findByCreator(query.creatorUuid())
-				.map(revenue -> new RevenueResult(
-						revenue.revenueUuid(),
-						revenue.creatorUuid(),
-						revenue.totalRevenue(),
-						revenue.availableRevenue(),
-						revenue.settledRevenue()
-				))
+				.map(RevenueResult::from)
 				.orElseGet(() -> RevenueResult.empty(query.creatorUuid()));
 		log.debug(
-				"GetRevenueQueryService : get : 수익 조회 - creatorUuid={}, totalRevenue={}, availableRevenue={}",
+				"GetRevenueQueryService : get : Creator 수익 조회 - creatorUuid={}, totalRevenue={}, availableRevenue={}, settledRevenue={}",
 				query.creatorUuid(),
 				result.totalRevenue(),
-				result.availableRevenue()
+				result.availableRevenue(),
+				result.settledRevenue()
 		);
 		return result;
 	}
