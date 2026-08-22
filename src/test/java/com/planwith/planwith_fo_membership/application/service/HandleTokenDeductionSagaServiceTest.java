@@ -18,6 +18,7 @@ import com.planwith.planwith_fo_membership.adapter.out.persistence.revenue.InMem
 import com.planwith.planwith_fo_membership.adapter.out.persistence.revenue.InMemoryRevenuePort;
 import com.planwith.planwith_fo_membership.adapter.out.persistence.saga.InMemoryMembershipSagaPort;
 import com.planwith.planwith_fo_membership.adapter.out.persistence.subscription.InMemoryLoadSubscriptionPort;
+import com.planwith.planwith_fo_membership.adapter.out.redis.InMemoryEntitlementCacheAdapter;
 import com.planwith.planwith_fo_membership.application.command.HandleTokenDeductionFailedCommand;
 import com.planwith.planwith_fo_membership.application.command.HandleTokenDeductionSucceededCommand;
 import com.planwith.planwith_fo_membership.application.command.StartTokenPaymentCommand;
@@ -47,6 +48,7 @@ class HandleTokenDeductionSagaServiceTest {
 	private InMemoryLoadSubscriptionPort subscriptionPort;
 	private InMemoryRevenuePort revenuePort;
 	private InMemoryRevenueLedgerPort revenueLedgerPort;
+	private InMemoryEntitlementCacheAdapter entitlementCacheAdapter;
 	private InMemoryMembershipEventOutboxPort outboxPort;
 	private StartTokenPaymentService startTokenPaymentService;
 	private HandleTokenDeductionSucceededService succeededService;
@@ -61,6 +63,7 @@ class HandleTokenDeductionSagaServiceTest {
 		sagaPort = new InMemoryMembershipSagaPort();
 		revenuePort = new InMemoryRevenuePort();
 		revenueLedgerPort = new InMemoryRevenueLedgerPort();
+		entitlementCacheAdapter = new InMemoryEntitlementCacheAdapter();
 		outboxPort = new InMemoryMembershipEventOutboxPort();
 		InMemoryProcessedMembershipEventPort processedEventPort = new InMemoryProcessedMembershipEventPort();
 		ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
@@ -86,6 +89,7 @@ class HandleTokenDeductionSagaServiceTest {
 				revenuePort,
 				revenueLedgerPort,
 				revenueLedgerPort,
+				new GrantEntitlementService(subscriptionPort, entitlementCacheAdapter),
 				outboxPort,
 				objectMapper
 		);
@@ -141,6 +145,7 @@ class HandleTokenDeductionSagaServiceTest {
 		assertThat(ledger.companyShareKrw()).isEqualTo(7_000L);
 		assertThat(ledger.creatorShareKrw()).isEqualTo(3_000L);
 		assertThat(ledger.companyShareKrw() + ledger.creatorShareKrw()).isEqualTo(ledger.grossKrw());
+		assertThat(entitlementCacheAdapter.find(memberUuid, creatorUuid).orElseThrow().allowed()).isTrue();
 		assertThat(outboxPort.messages().stream().map(message -> message.eventType()))
 				.contains(MembershipEventTypes.MEMBERSHIP_SUBSCRIBED);
 	}
@@ -164,6 +169,7 @@ class HandleTokenDeductionSagaServiceTest {
 				.isEqualTo(MembershipSagaStatus.FAILED);
 		assertThat(revenuePort.findByCreator(creatorUuid).orElseThrow().totalRevenue()).isZero();
 		assertThat(revenueLedgerPort.findByPaymentUuid(started.paymentUuid())).isEmpty();
+		assertThat(entitlementCacheAdapter.find(memberUuid, creatorUuid)).isEmpty();
 		assertThat(outboxPort.messages().stream().map(message -> message.eventType()))
 				.containsExactly(MembershipEventTypes.TOKEN_DEDUCTION_REQUESTED);
 	}
