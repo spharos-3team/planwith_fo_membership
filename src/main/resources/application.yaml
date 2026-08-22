@@ -106,3 +106,7 @@ membership:
   cache:
     key-prefix: ${MEMBERSHIP_CACHE_KEY_PREFIX:membership:entitlement}
     ttl: ${MEMBERSHIP_CACHE_TTL:10m}
+  expire:
+    scheduler-enabled: ${MEMBERSHIP_EXPIRE_SCHEDULER_ENABLED:false}
+    interval: ${MEMBERSHIP_EXPIRE_INTERVAL:1h}
+    initial-delay: ${MEMBERSHIP_EXPIRE_INITIAL_DELAY:1m}

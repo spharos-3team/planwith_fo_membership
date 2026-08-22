@@ -1,5 +1,6 @@
 package com.planwith.planwith_fo_membership.adapter.out.persistence.subscription;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,6 +64,15 @@ public class MembershipSubscriptionPersistenceAdapter implements LoadSubscriptio
 	@Transactional(readOnly = true)
 	public List<MembershipSubscription> findActiveByCreator(CreatorUuid creatorUuid) {
 		return repository.findActiveByCreatorUuid(creatorUuid.value(), SubscriptionStatus.ACTIVE)
+				.stream()
+				.map(MembershipSubscriptionJpaEntity::toDomain)
+				.toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<MembershipSubscription> findActiveStartedAtOnOrBefore(Instant startedAtOnOrBefore) {
+		return repository.findByStatusAndStartedAtLessThanEqual(SubscriptionStatus.ACTIVE, startedAtOnOrBefore)
 				.stream()
 				.map(MembershipSubscriptionJpaEntity::toDomain)
 				.toList();

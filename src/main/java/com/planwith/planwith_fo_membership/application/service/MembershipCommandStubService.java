@@ -4,16 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.planwith.planwith_fo_membership.application.command.CancelSubscriptionCommand;
 import com.planwith.planwith_fo_membership.application.command.CreateMembershipCommand;
-import com.planwith.planwith_fo_membership.application.command.ExpireSubscriptionCommand;
 import com.planwith.planwith_fo_membership.application.command.ProcessSettlementCommand;
 import com.planwith.planwith_fo_membership.application.command.RequestSettlementCommand;
 import com.planwith.planwith_fo_membership.application.command.SubscribeMembershipCommand;
 import com.planwith.planwith_fo_membership.application.command.UpdateMembershipCommand;
-import com.planwith.planwith_fo_membership.application.port.in.command.CancelSubscriptionUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.CreateMembershipUseCase;
-import com.planwith.planwith_fo_membership.application.port.in.command.ExpireSubscriptionUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.ProcessSettlementUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.RequestSettlementUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.SubscribeMembershipUseCase;
@@ -25,8 +21,6 @@ public class MembershipCommandStubService implements
 		CreateMembershipUseCase,
 		UpdateMembershipUseCase,
 		SubscribeMembershipUseCase,
-		CancelSubscriptionUseCase,
-		ExpireSubscriptionUseCase,
 		RequestSettlementUseCase,
 		ProcessSettlementUseCase {
 
@@ -51,20 +45,6 @@ public class MembershipCommandStubService implements
 				command.memberUuid()
 		);
 		throw unsupported("멤버십 구독 Saga");
-	}
-
-	@Override
-	public void cancel(CancelSubscriptionCommand command) {
-		log.debug("MembershipCommandStubService : cancel : 구독 해지는 후속 이슈에서 구현한다 - subscriptionUuid={}",
-				command.subscriptionUuid());
-		throw unsupported("구독 해지");
-	}
-
-	@Override
-	public void expire(ExpireSubscriptionCommand command) {
-		log.debug("MembershipCommandStubService : expire : 구독 만료는 후속 이슈에서 구현한다 - subscriptionUuid={}",
-				command.subscriptionUuid());
-		throw unsupported("구독 만료");
 	}
 
 	@Override

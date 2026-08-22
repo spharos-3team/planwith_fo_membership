@@ -1,5 +1,6 @@
 package com.planwith.planwith_fo_membership.adapter.out.persistence.subscription;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,14 @@ public class InMemoryLoadSubscriptionPort implements LoadSubscriptionPort, SaveS
 		return subscriptions.values().stream()
 				.filter(subscription -> subscription.status() == SubscriptionStatus.ACTIVE)
 				.filter(subscription -> matchesCreator(subscription, creatorUuid))
+				.toList();
+	}
+
+	@Override
+	public List<MembershipSubscription> findActiveStartedAtOnOrBefore(Instant startedAtOnOrBefore) {
+		return subscriptions.values().stream()
+				.filter(subscription -> subscription.status() == SubscriptionStatus.ACTIVE)
+				.filter(subscription -> !subscription.startedAt().isAfter(startedAtOnOrBefore))
 				.toList();
 	}
 

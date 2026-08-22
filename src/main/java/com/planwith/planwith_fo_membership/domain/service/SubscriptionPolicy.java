@@ -1,10 +1,14 @@
 package com.planwith.planwith_fo_membership.domain.service;
 
+import java.time.Duration;
 import java.time.Instant;
 
 import com.planwith.planwith_fo_membership.domain.model.SubscriptionStatus;
 
 public final class SubscriptionPolicy {
+
+	public static final Duration DEFAULT_TERM = Duration.ofDays(30);
+	public static final String PROCESSED_BY_SYSTEM = "SYSTEM";
 
 	private SubscriptionPolicy() {
 	}
@@ -28,5 +32,9 @@ public final class SubscriptionPolicy {
 
 	public static boolean isDuplicateActive(boolean hasOtherActiveSubscription) {
 		return hasOtherActiveSubscription;
+	}
+
+	public static boolean isDueToExpire(Instant startedAt, Instant now) {
+		return startedAt != null && now != null && !now.isBefore(startedAt.plus(DEFAULT_TERM));
 	}
 }

@@ -1,5 +1,6 @@
 package com.planwith.planwith_fo_membership.application.port.out;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,4 +19,6 @@ public interface LoadSubscriptionPort {
 	List<JoinedMembershipResult> findJoinedByMember(MemberUuid memberUuid);
 
 	List<MembershipSubscription> findActiveByCreator(CreatorUuid creatorUuid);
+
+	List<MembershipSubscription> findActiveStartedAtOnOrBefore(Instant startedAtOnOrBefore);
 }
