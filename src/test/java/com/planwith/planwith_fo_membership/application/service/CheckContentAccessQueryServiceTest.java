@@ -59,6 +59,8 @@ class CheckContentAccessQueryServiceTest {
 		);
 
 		assertThat(result.allowed()).isFalse();
+		assertThat(result.status()).isNull();
+		assertThat(entitlementCacheAdapter.find(memberUuid, creatorUuid)).isEmpty();
 	}
 
 	@Test
@@ -83,6 +85,7 @@ class CheckContentAccessQueryServiceTest {
 		);
 
 		assertThat(result.allowed()).isTrue();
+		assertThat(result.status()).isEqualTo("ACTIVE");
 		assertThat(entitlementCacheAdapter.find(memberUuid, creatorUuid)).isPresent();
 	}
 }

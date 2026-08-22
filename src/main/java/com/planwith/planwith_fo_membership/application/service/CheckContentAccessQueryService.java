@@ -33,6 +33,8 @@ public class CheckContentAccessQueryService implements CheckContentAccessQueryUs
 	@Transactional(readOnly = true)
 	public ContentAccessResult check(CheckContentAccessQuery query) {
 		return entitlementCachePort.find(query.memberUuid(), query.creatorUuid())
+				.filter(Entitlement::allowed)
+				.map(ContentAccessResult::from)
 				.orElseGet(() -> loadFromSourceOfTruth(query));
 	}
 
@@ -48,12 +50,11 @@ public class CheckContentAccessQueryService implements CheckContentAccessQueryUs
 		Entitlement entitlement = subscription == null
 				? Entitlement.denied(query.memberUuid(), query.creatorUuid())
 				: Entitlement.from(subscription, query.creatorUuid());
-		ContentAccessResult result = new ContentAccessResult(
-				entitlement.memberUuid(),
-				entitlement.creatorUuid(),
-				entitlement.allowed()
-		);
-		entitlementCachePort.save(result);
-		return result;
+		if (entitlement.allowed()) {
+			entitlementCachePort.save(entitlement);
+		} else {
+			entitlementCachePort.evict(query.memberUuid(), query.creatorUuid());
+		}
+		return ContentAccessResult.from(entitlement);
 	}
 }

@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.planwith.planwith_fo_membership.application.command.GrantEntitlementCommand;
 import com.planwith.planwith_fo_membership.application.command.HandleTokenDeductionSucceededCommand;
 import com.planwith.planwith_fo_membership.application.event.MembershipSubscribedEvent;
+import com.planwith.planwith_fo_membership.application.port.in.command.GrantEntitlementUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.HandleTokenDeductionSucceededUseCase;
 import com.planwith.planwith_fo_membership.application.port.out.LoadMembershipPort;
 import com.planwith.planwith_fo_membership.application.port.out.LoadMembershipSagaPort;
@@ -62,6 +64,7 @@ public class HandleTokenDeductionSucceededService implements HandleTokenDeductio
 	private final SaveRevenuePort saveRevenuePort;
 	private final LoadRevenueLedgerPort loadRevenueLedgerPort;
 	private final SaveRevenueLedgerPort saveRevenueLedgerPort;
+	private final GrantEntitlementUseCase grantEntitlementUseCase;
 	private final MembershipEventOutboxPort membershipEventOutboxPort;
 	private final ObjectMapper objectMapper;
 
@@ -78,6 +81,7 @@ public class HandleTokenDeductionSucceededService implements HandleTokenDeductio
 			SaveRevenuePort saveRevenuePort,
 			LoadRevenueLedgerPort loadRevenueLedgerPort,
 			SaveRevenueLedgerPort saveRevenueLedgerPort,
+			GrantEntitlementUseCase grantEntitlementUseCase,
 			MembershipEventOutboxPort membershipEventOutboxPort,
 			ObjectMapper objectMapper
 	) {
@@ -93,6 +97,7 @@ public class HandleTokenDeductionSucceededService implements HandleTokenDeductio
 		this.saveRevenuePort = saveRevenuePort;
 		this.loadRevenueLedgerPort = loadRevenueLedgerPort;
 		this.saveRevenueLedgerPort = saveRevenueLedgerPort;
+		this.grantEntitlementUseCase = grantEntitlementUseCase;
 		this.membershipEventOutboxPort = membershipEventOutboxPort;
 		this.objectMapper = objectMapper;
 	}
@@ -134,6 +139,11 @@ public class HandleTokenDeductionSucceededService implements HandleTokenDeductio
 				completedAt
 		));
 		recordRevenueShare(creatorUuid, succeeded, completedAt);
+		grantEntitlementUseCase.grant(new GrantEntitlementCommand(
+				command.memberUuid(),
+				creatorUuid,
+				succeeded.subscriptionUuid()
+		));
 		membershipEventOutboxPort.save(toSubscribedOutbox(command, creatorUuid, membership, succeeded, completedAt));
 		markProcessed(command);
 		log.info(
