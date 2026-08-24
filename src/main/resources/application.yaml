@@ -79,6 +79,8 @@ app:
     marker: ${DEPLOY_MARKER:planwith-fo-membership-deploy-v1}
 
 membership:
+  gateway-auth:
+    enabled: ${MEMBERSHIP_GATEWAY_AUTH_ENABLED:true}
   kafka:
     consumer-enabled: ${MEMBERSHIP_KAFKA_CONSUMER_ENABLED:false}
     topics:
