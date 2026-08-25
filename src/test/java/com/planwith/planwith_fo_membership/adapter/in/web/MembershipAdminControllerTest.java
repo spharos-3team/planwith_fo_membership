@@ -50,7 +50,7 @@ class MembershipAdminControllerTest {
 
 		mockMvc.perform(post("/api/planwith-fo-membership/admin/memberships/{membershipUuid}/approve",
 						"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-						.header("X-Admin-UUID", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"))
+						.header("X-Auth-User-Id", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status").value("APPROVED"))
 				.andExpect(jsonPath("$.adminUuid").value("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"));
@@ -62,7 +62,7 @@ class MembershipAdminControllerTest {
 
 		mockMvc.perform(post("/api/planwith-fo-membership/admin/memberships/{membershipUuid}/reject",
 						"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-						.header("X-Admin-UUID", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+						.header("X-Auth-User-Id", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -78,7 +78,7 @@ class MembershipAdminControllerTest {
 	void rejectRequiresReason() throws Exception {
 		mockMvc.perform(post("/api/planwith-fo-membership/admin/memberships/{membershipUuid}/reject",
 						"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-						.header("X-Admin-UUID", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+						.header("X-Auth-User-Id", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -104,7 +104,7 @@ class MembershipAdminControllerTest {
 
 		mockMvc.perform(post("/api/planwith-fo-membership/admin/memberships/{membershipUuid}/approve",
 						"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-						.header("X-Admin-UUID", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"))
+						.header("X-Auth-User-Id", "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"))
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.code").value("INVALID_MEMBERSHIP_STATE"));
 	}

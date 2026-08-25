@@ -68,7 +68,7 @@ class MembershipManagementQueryControllerTest {
 		when(getMyMembershipQueryUseCase.get(any())).thenReturn(Optional.empty());
 
 		mockMvc.perform(get("/api/planwith-fo-membership/memberships/me")
-						.header("X-Member-UUID", MEMBER_UUID))
+						.header("X-Auth-User-Id", MEMBER_UUID))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.hasMembership").value(false))
 				.andExpect(jsonPath("$.membershipUuid").doesNotExist())
@@ -88,7 +88,7 @@ class MembershipManagementQueryControllerTest {
 		)));
 
 		mockMvc.perform(get("/api/planwith-fo-membership/memberships/me")
-						.header("X-Member-UUID", MEMBER_UUID))
+						.header("X-Auth-User-Id", MEMBER_UUID))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.hasMembership").value(true))
 				.andExpect(jsonPath("$.membershipUuid").value("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
@@ -113,7 +113,7 @@ class MembershipManagementQueryControllerTest {
 		)));
 
 		mockMvc.perform(get("/api/planwith-fo-membership/memberships/me/subscriptions")
-						.header("X-Member-UUID", MEMBER_UUID))
+						.header("X-Auth-User-Id", MEMBER_UUID))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].subscriptionUuid").value("55555555-5555-5555-5555-555555555555"))
 				.andExpect(jsonPath("$[0].membershipName").value("탐험가 멤버십"))
@@ -138,7 +138,7 @@ class MembershipManagementQueryControllerTest {
 		));
 
 		mockMvc.perform(get("/api/planwith-fo-membership/memberships/me/subscribers")
-						.header("X-Member-UUID", MEMBER_UUID))
+						.header("X-Auth-User-Id", MEMBER_UUID))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.subscriberCount").value(1))
 				.andExpect(jsonPath("$.subscribers[0].memberUuid").value("11111111-1111-1111-1111-111111111111"))
@@ -158,7 +158,7 @@ class MembershipManagementQueryControllerTest {
 		));
 
 		mockMvc.perform(get("/api/planwith-fo-membership/memberships/me/revenue")
-						.header("X-Member-UUID", MEMBER_UUID))
+						.header("X-Auth-User-Id", MEMBER_UUID))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.revenueUuid").value("66666666-6666-6666-6666-666666666666"))
 				.andExpect(jsonPath("$.totalRevenue").value(120000))

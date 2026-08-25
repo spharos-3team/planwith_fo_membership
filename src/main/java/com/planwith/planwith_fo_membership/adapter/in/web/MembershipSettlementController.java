@@ -38,7 +38,7 @@ public class MembershipSettlementController {
 	// 정산 신청
 	@PostMapping("/memberships/me/settlements")
 	public ResponseEntity<RequestSettlementResponse> requestSettlement(
-			@RequestHeader("X-Member-UUID") UUID memberUuid,
+			@RequestHeader("X-Auth-User-Id") UUID memberUuid,
 			@Valid @RequestBody RequestSettlementRequest request
 	) {
 		log.info(

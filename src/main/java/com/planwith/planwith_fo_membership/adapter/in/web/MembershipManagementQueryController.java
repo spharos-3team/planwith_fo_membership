@@ -55,7 +55,7 @@ public class MembershipManagementQueryController {
 	// 본인 멤버십 조회
 	@GetMapping("/memberships/me")
 	public ResponseEntity<MyMembershipResponse> getMyMembership(
-			@RequestHeader("X-Member-UUID") UUID memberUuid
+			@RequestHeader("X-Auth-User-Id") UUID memberUuid
 	) {
 		log.info("MembershipManagementQueryController : GET getMyMembership : 본인 멤버십 조회 요청 - memberUuid={}", memberUuid);
 		MyMembershipResponse response = getMyMembershipQueryUseCase.get(new GetMyMembershipQuery(new CreatorUuid(memberUuid)))
@@ -72,7 +72,7 @@ public class MembershipManagementQueryController {
 	// 내가 가입한 멤버십 목록 조회
 	@GetMapping("/memberships/me/subscriptions")
 	public ResponseEntity<List<JoinedMembershipResponse>> listJoinedMemberships(
-			@RequestHeader("X-Member-UUID") UUID memberUuid
+			@RequestHeader("X-Auth-User-Id") UUID memberUuid
 	) {
 		log.info(
 				"MembershipManagementQueryController : GET listJoinedMemberships : 가입 멤버십 목록 조회 요청 - memberUuid={}",
@@ -104,7 +104,7 @@ public class MembershipManagementQueryController {
 	// Creator 가입자 목록 조회
 	@GetMapping("/memberships/me/subscribers")
 	public ResponseEntity<CreatorSubscribersResponse> listMySubscribers(
-			@RequestHeader("X-Member-UUID") UUID memberUuid
+			@RequestHeader("X-Auth-User-Id") UUID memberUuid
 	) {
 		log.info(
 				"MembershipManagementQueryController : GET listMySubscribers : 가입자 목록 조회 요청 - memberUuid={}",
@@ -136,7 +136,7 @@ public class MembershipManagementQueryController {
 	// Creator 수익 조회
 	@GetMapping("/memberships/me/revenue")
 	public ResponseEntity<RevenueResponse> getMyRevenue(
-			@RequestHeader("X-Member-UUID") UUID memberUuid
+			@RequestHeader("X-Auth-User-Id") UUID memberUuid
 	) {
 		log.info("MembershipManagementQueryController : GET getMyRevenue : Creator 수익 조회 요청 - memberUuid={}", memberUuid);
 		RevenueResult result = getRevenueQueryUseCase.get(new GetRevenueQuery(new CreatorUuid(memberUuid)));

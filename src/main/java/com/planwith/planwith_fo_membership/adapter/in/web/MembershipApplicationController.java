@@ -46,7 +46,7 @@ public class MembershipApplicationController {
 	// 멤버십 신청 검증
 	@PostMapping("/memberships/applications/validate")
 	public ResponseEntity<ValidateMembershipApplicationResponse> validateApplication(
-			@RequestHeader("X-Member-UUID") UUID creatorUuid,
+			@RequestHeader("X-Auth-User-Id") UUID creatorUuid,
 			@Valid @RequestBody ValidateMembershipApplicationRequest request
 	) {
 		log.info("MembershipApplicationController : POST validateApplication : 멤버십 신청 검증 요청 - creatorUuid={}", creatorUuid);
@@ -69,7 +69,7 @@ public class MembershipApplicationController {
 	// 멤버십 신청
 	@PostMapping("/memberships/applications")
 	public ResponseEntity<ApplyMembershipApplicationResponse> applyApplication(
-			@RequestHeader("X-Member-UUID") UUID creatorUuid,
+			@RequestHeader("X-Auth-User-Id") UUID creatorUuid,
 			@Valid @RequestBody ValidateMembershipApplicationRequest request
 	) {
 		log.info("MembershipApplicationController : POST applyApplication : 멤버십 신청 요청 - creatorUuid={}", creatorUuid);

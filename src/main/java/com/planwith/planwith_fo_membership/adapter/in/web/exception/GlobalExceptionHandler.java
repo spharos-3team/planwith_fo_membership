@@ -11,6 +11,8 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.planwith.planwith_fo_membership.adapter.in.web.dto.ApiErrorResponse;
 import com.planwith.planwith_fo_membership.domain.exception.DuplicateMembershipApplicationException;
 import com.planwith.planwith_fo_membership.domain.exception.DuplicateSubscriptionException;
@@ -146,11 +148,15 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(MissingRequestHeaderException.class)
-	public ResponseEntity<ApiErrorResponse> handleMissingRequestHeader(MissingRequestHeaderException exception) {
-		if ("X-Admin-UUID".equals(exception.getHeaderName())) {
-			return createErrorResponse(HttpStatus.FORBIDDEN, MembershipErrorCodes.FORBIDDEN_ADMIN, "관리자만 처리할 수 있습니다.");
-		}
-		if ("X-Member-UUID".equals(exception.getHeaderName())) {
+	public ResponseEntity<ApiErrorResponse> handleMissingRequestHeader(
+			MissingRequestHeaderException exception,
+			HttpServletRequest request
+	) {
+		if ("X-Auth-User-Id".equals(exception.getHeaderName())) {
+			String uri = request.getRequestURI();
+			if (uri != null && uri.contains("/admin/")) {
+				return createErrorResponse(HttpStatus.FORBIDDEN, MembershipErrorCodes.FORBIDDEN_ADMIN, "관리자만 처리할 수 있습니다.");
+			}
 			return createErrorResponse(HttpStatus.FORBIDDEN, MembershipErrorCodes.FORBIDDEN_CREATOR, "회원 인증 정보가 필요합니다.");
 		}
 		return createErrorResponse(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", "필수 요청 헤더가 없습니다.");

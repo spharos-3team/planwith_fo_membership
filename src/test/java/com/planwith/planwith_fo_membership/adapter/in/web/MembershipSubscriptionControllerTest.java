@@ -78,7 +78,7 @@ class MembershipSubscriptionControllerTest {
 		));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/validate")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -99,7 +99,7 @@ class MembershipSubscriptionControllerTest {
 				.thenThrow(new FollowRequiredException("팔로워만 멤버십에 가입할 수 있습니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/validate")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isForbidden())
@@ -112,7 +112,7 @@ class MembershipSubscriptionControllerTest {
 				.thenThrow(new DuplicateSubscriptionException("이미 가입한 멤버십입니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/validate")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isConflict())
@@ -125,7 +125,7 @@ class MembershipSubscriptionControllerTest {
 				.thenThrow(new MembershipNotApprovedException("승인된 멤버십만 가입할 수 있습니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/validate")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isConflict())
@@ -143,7 +143,7 @@ class MembershipSubscriptionControllerTest {
 		));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/payments")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isCreated())
@@ -159,7 +159,7 @@ class MembershipSubscriptionControllerTest {
 				.thenThrow(new FollowRequiredException("팔로워만 멤버십에 가입할 수 있습니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/payments")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isForbidden())
@@ -172,7 +172,7 @@ class MembershipSubscriptionControllerTest {
 				.thenThrow(new TokenInsufficientException("토큰 잔액이 부족합니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/payments")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isConflict())
@@ -185,7 +185,7 @@ class MembershipSubscriptionControllerTest {
 				.thenThrow(new TokenPaymentFailedException("토큰 결제에 실패했습니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/payments")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isConflict())
@@ -201,7 +201,7 @@ class MembershipSubscriptionControllerTest {
 		));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/me/subscriptions/55555555-5555-5555-5555-555555555555/cancel")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111"))
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.subscriptionUuid").value("55555555-5555-5555-5555-555555555555"))
 				.andExpect(jsonPath("$.status").value("INACTIVE"))
@@ -214,7 +214,7 @@ class MembershipSubscriptionControllerTest {
 				.thenThrow(new InvalidSubscriptionStateException("이미 해지되었거나 만료된 구독입니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/me/subscriptions/55555555-5555-5555-5555-555555555555/cancel")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111"))
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111"))
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.code").value("INVALID_SUBSCRIPTION_STATE"));
 	}
@@ -225,7 +225,7 @@ class MembershipSubscriptionControllerTest {
 				.thenThrow(new ForbiddenCreatorException("본인 구독만 해지할 수 있습니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/me/subscriptions/55555555-5555-5555-5555-555555555555/cancel")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111"))
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111"))
 				.andExpect(status().isForbidden())
 				.andExpect(jsonPath("$.code").value("FORBIDDEN_CREATOR"));
 	}
@@ -233,7 +233,7 @@ class MembershipSubscriptionControllerTest {
 	@Test
 	void rejectsMissingCreatorUuid() throws Exception {
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/subscriptions/validate")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111")
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("{}"))
 				.andExpect(status().isBadRequest())

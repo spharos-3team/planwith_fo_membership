@@ -1,11 +1,6 @@
 package com.planwith.planwith_fo_membership.adapter.in.web.auth;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -15,7 +10,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,8 +19,6 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
 
 	static final String AUTH_USER_ID = "X-Auth-User-Id";
 	static final String AUTH_ROLES = "X-Auth-Roles";
-	static final String MEMBER_UUID_ALIAS = "X-Member-UUID";
-	static final String ADMIN_UUID_ALIAS = "X-Admin-UUID";
 
 	private static final String API_PREFIX = "/api/planwith-fo-membership";
 
@@ -63,7 +55,7 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		filterChain.doFilter(new TrustedHeaderRequest(request, memberUuid, adminRequest), response);
+		filterChain.doFilter(request, response);
 	}
 
 	private static boolean requiresAuthentication(String requestUri) {
@@ -95,45 +87,5 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write("{\"code\":\"" + code + "\",\"message\":\"" + message + "\"}");
-	}
-
-	private static final class TrustedHeaderRequest extends HttpServletRequestWrapper {
-
-		private final String memberUuid;
-		private final boolean adminRequest;
-
-		private TrustedHeaderRequest(HttpServletRequest request, String memberUuid, boolean adminRequest) {
-			super(request);
-			this.memberUuid = memberUuid;
-			this.adminRequest = adminRequest;
-		}
-
-		@Override
-		public String getHeader(String name) {
-			if (MEMBER_UUID_ALIAS.equalsIgnoreCase(name)) {
-				return memberUuid;
-			}
-			if (ADMIN_UUID_ALIAS.equalsIgnoreCase(name)) {
-				return adminRequest ? memberUuid : null;
-			}
-			return super.getHeader(name);
-		}
-
-		@Override
-		public Enumeration<String> getHeaders(String name) {
-			String value = getHeader(name);
-			return value == null ? Collections.emptyEnumeration() : Collections.enumeration(Collections.singleton(value));
-		}
-
-		@Override
-		public Enumeration<String> getHeaderNames() {
-			Set<String> names = new LinkedHashSet<>(Collections.list(super.getHeaderNames()));
-			names.removeIf(name -> MEMBER_UUID_ALIAS.equalsIgnoreCase(name) || ADMIN_UUID_ALIAS.equalsIgnoreCase(name));
-			names.add(MEMBER_UUID_ALIAS);
-			if (adminRequest) {
-				names.add(ADMIN_UUID_ALIAS);
-			}
-			return Collections.enumeration(new ArrayList<>(names));
-		}
 	}
 }

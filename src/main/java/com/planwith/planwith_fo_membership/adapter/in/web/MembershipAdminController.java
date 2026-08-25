@@ -46,7 +46,7 @@ public class MembershipAdminController {
 	// 멤버십 승인
 	@PostMapping("/{membershipUuid}/approve")
 	public ResponseEntity<ReviewMembershipResponse> approveMembership(
-			@RequestHeader("X-Admin-UUID") UUID adminUuid,
+			@RequestHeader("X-Auth-User-Id") UUID adminUuid,
 			@PathVariable UUID membershipUuid
 	) {
 		log.info(
@@ -68,7 +68,7 @@ public class MembershipAdminController {
 	// 멤버십 거절
 	@PostMapping("/{membershipUuid}/reject")
 	public ResponseEntity<ReviewMembershipResponse> rejectMembership(
-			@RequestHeader("X-Admin-UUID") UUID adminUuid,
+			@RequestHeader("X-Auth-User-Id") UUID adminUuid,
 			@PathVariable UUID membershipUuid,
 			@Valid @RequestBody RejectMembershipRequest request
 	) {

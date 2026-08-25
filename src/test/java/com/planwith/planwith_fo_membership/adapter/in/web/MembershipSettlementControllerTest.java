@@ -51,7 +51,7 @@ class MembershipSettlementControllerTest {
 		));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/me/settlements")
-						.header("X-Member-UUID", "22222222-2222-2222-2222-222222222222")
+						.header("X-Auth-User-Id", "22222222-2222-2222-2222-222222222222")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -72,7 +72,7 @@ class MembershipSettlementControllerTest {
 				.thenThrow(new SettlementAmountExceededException("정산 가능 금액을 초과할 수 없습니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/me/settlements")
-						.header("X-Member-UUID", "22222222-2222-2222-2222-222222222222")
+						.header("X-Auth-User-Id", "22222222-2222-2222-2222-222222222222")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -86,7 +86,7 @@ class MembershipSettlementControllerTest {
 	@Test
 	void rejectsNonPositiveSettlementAmount() throws Exception {
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/me/settlements")
-						.header("X-Member-UUID", "22222222-2222-2222-2222-222222222222")
+						.header("X-Auth-User-Id", "22222222-2222-2222-2222-222222222222")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{

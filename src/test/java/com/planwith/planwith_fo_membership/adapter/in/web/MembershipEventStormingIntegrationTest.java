@@ -154,7 +154,7 @@ class MembershipEventStormingIntegrationTest {
 		prepareGrade(creatorUuid, "ROOKIE", "루키", 1);
 
 		mockMvc.perform(post(API + "/memberships/applications")
-						.header("X-Member-UUID", creatorUuid)
+						.header("X-Auth-User-Id", creatorUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(applicationBody()))
 				.andExpect(status().isForbidden())
@@ -172,7 +172,7 @@ class MembershipEventStormingIntegrationTest {
 		prepareExplorer(creatorUuid);
 
 		MvcResult result = mockMvc.perform(post(API + "/memberships/applications")
-						.header("X-Member-UUID", creatorUuid)
+						.header("X-Auth-User-Id", creatorUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(applicationBody()))
 				.andExpect(status().isCreated())
@@ -196,7 +196,7 @@ class MembershipEventStormingIntegrationTest {
 		prepareExplorer(creatorUuid);
 
 		MvcResult result = mockMvc.perform(post(API + "/memberships/applications")
-						.header("X-Member-UUID", creatorUuid)
+						.header("X-Auth-User-Id", creatorUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(applicationBody()))
 				.andExpect(status().isCreated())
@@ -217,7 +217,7 @@ class MembershipEventStormingIntegrationTest {
 		Flow flow = applyPendingMembership();
 
 		mockMvc.perform(post(API + "/admin/memberships/" + flow.membershipUuid + "/approve")
-						.header("X-Admin-UUID", flow.adminUuid))
+						.header("X-Auth-User-Id", flow.adminUuid))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status").value(MembershipStatus.APPROVED.name()))
 				.andExpect(jsonPath("$.adminUuid").value(flow.adminUuid.toString()));
@@ -234,7 +234,7 @@ class MembershipEventStormingIntegrationTest {
 		Flow flow = applyPendingMembership();
 
 		mockMvc.perform(post(API + "/admin/memberships/" + flow.membershipUuid + "/reject")
-						.header("X-Admin-UUID", flow.adminUuid)
+						.header("X-Auth-User-Id", flow.adminUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{"rejectReason":"서류 미비"}
@@ -255,14 +255,14 @@ class MembershipEventStormingIntegrationTest {
 		follow(flow.memberUuid, flow.creatorUuid);
 
 		mockMvc.perform(post(API + "/memberships/subscriptions/validate")
-						.header("X-Member-UUID", flow.memberUuid)
+						.header("X-Auth-User-Id", flow.memberUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(creatorBody(flow.creatorUuid)))
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.code").value(MembershipErrorCodes.MEMBERSHIP_NOT_APPROVED));
 
 		mockMvc.perform(post(API + "/memberships/subscriptions/payments")
-						.header("X-Member-UUID", flow.memberUuid)
+						.header("X-Auth-User-Id", flow.memberUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(creatorBody(flow.creatorUuid)))
 				.andExpect(status().isConflict())
@@ -275,7 +275,7 @@ class MembershipEventStormingIntegrationTest {
 		Flow flow = approveMembership();
 
 		mockMvc.perform(post(API + "/memberships/subscriptions/validate")
-						.header("X-Member-UUID", flow.memberUuid)
+						.header("X-Auth-User-Id", flow.memberUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(creatorBody(flow.creatorUuid)))
 				.andExpect(status().isForbidden())
@@ -289,7 +289,7 @@ class MembershipEventStormingIntegrationTest {
 		Flow flow = approveAndFollow();
 
 		mockMvc.perform(post(API + "/memberships/subscriptions/validate")
-						.header("X-Member-UUID", flow.memberUuid)
+						.header("X-Auth-User-Id", flow.memberUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(creatorBody(flow.creatorUuid)))
 				.andExpect(status().isOk())
@@ -377,7 +377,7 @@ class MembershipEventStormingIntegrationTest {
 		assertThat(revenue.availableRevenue()).isEqualTo(CREATOR_SHARE_KRW);
 		assertThat(revenue.totalRevenue()).isEqualTo(CREATOR_SHARE_KRW);
 
-		mockMvc.perform(get(API + "/memberships/me/revenue").header("X-Member-UUID", flow.creatorUuid))
+		mockMvc.perform(get(API + "/memberships/me/revenue").header("X-Auth-User-Id", flow.creatorUuid))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.availableRevenue").value(CREATOR_SHARE_KRW))
 				.andExpect(jsonPath("$.totalRevenue").value(CREATOR_SHARE_KRW));
@@ -404,7 +404,7 @@ class MembershipEventStormingIntegrationTest {
 		consumeTokenSucceeded(flow, started);
 
 		mockMvc.perform(get(API + "/memberships/me/entitlement/" + flow.creatorUuid)
-						.header("X-Member-UUID", flow.memberUuid))
+						.header("X-Auth-User-Id", flow.memberUuid))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.allowed").value(true))
 				.andExpect(jsonPath("$.status").value(SubscriptionStatus.ACTIVE.name()));
@@ -424,7 +424,7 @@ class MembershipEventStormingIntegrationTest {
 		entitlementCacheAdapter.clear();
 
 		mockMvc.perform(get(API + "/memberships/me/entitlement/" + flow.creatorUuid)
-						.header("X-Member-UUID", flow.memberUuid))
+						.header("X-Auth-User-Id", flow.memberUuid))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.allowed").value(true))
 				.andExpect(jsonPath("$.status").value(SubscriptionStatus.ACTIVE.name()));
@@ -445,7 +445,7 @@ class MembershipEventStormingIntegrationTest {
 		consumeTokenSucceeded(flow, started);
 
 		mockMvc.perform(post(API + "/memberships/me/subscriptions/" + started.subscriptionUuid + "/cancel")
-						.header("X-Member-UUID", flow.memberUuid))
+						.header("X-Auth-User-Id", flow.memberUuid))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status").value(SubscriptionStatus.INACTIVE.name()))
 				.andExpect(jsonPath("$.endedAt").exists());
@@ -462,18 +462,18 @@ class MembershipEventStormingIntegrationTest {
 		StartedPayment started = startPayment(flow);
 		consumeTokenSucceeded(flow, started);
 		mockMvc.perform(get(API + "/memberships/me/entitlement/" + flow.creatorUuid)
-						.header("X-Member-UUID", flow.memberUuid))
+						.header("X-Auth-User-Id", flow.memberUuid))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.allowed").value(true));
 
 		mockMvc.perform(post(API + "/memberships/me/subscriptions/" + started.subscriptionUuid + "/cancel")
-						.header("X-Member-UUID", flow.memberUuid))
+						.header("X-Auth-User-Id", flow.memberUuid))
 				.andExpect(status().isOk());
 
 		assertThat(entitlementCacheAdapter.find(new MemberUuid(flow.memberUuid), new CreatorUuid(flow.creatorUuid)))
 				.isEmpty();
 		mockMvc.perform(get(API + "/memberships/me/entitlement/" + flow.creatorUuid)
-						.header("X-Member-UUID", flow.memberUuid))
+						.header("X-Auth-User-Id", flow.memberUuid))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.allowed").value(false));
 	}
@@ -484,7 +484,7 @@ class MembershipEventStormingIntegrationTest {
 		Flow flow = subscribeSuccessfully();
 
 		mockMvc.perform(post(API + "/memberships/me/settlements")
-						.header("X-Member-UUID", flow.creatorUuid)
+						.header("X-Auth-User-Id", flow.creatorUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{"settlementAmount":%s}
@@ -501,7 +501,7 @@ class MembershipEventStormingIntegrationTest {
 		long settlementAmount = 2_000L;
 
 		MvcResult requested = mockMvc.perform(post(API + "/memberships/me/settlements")
-						.header("X-Member-UUID", flow.creatorUuid)
+						.header("X-Auth-User-Id", flow.creatorUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{"settlementAmount":%s}
@@ -515,12 +515,12 @@ class MembershipEventStormingIntegrationTest {
 		UUID settlementUuid = uuid(requested, "settlementUuid");
 
 		mockMvc.perform(post(API + "/admin/settlements/" + settlementUuid + "/approve")
-						.header("X-Admin-UUID", flow.adminUuid))
+						.header("X-Auth-User-Id", flow.adminUuid))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status").value(SettlementStatus.APPROVED.name()));
 
 		mockMvc.perform(post(API + "/admin/settlements/" + settlementUuid + "/pay")
-						.header("X-Admin-UUID", flow.adminUuid))
+						.header("X-Auth-User-Id", flow.adminUuid))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status").value(SettlementStatus.PAID.name()))
 				.andExpect(jsonPath("$.availableRevenue").value(CREATOR_SHARE_KRW - settlementAmount))
@@ -544,7 +544,7 @@ class MembershipEventStormingIntegrationTest {
 		long settlementAmount = 2_000L;
 
 		MvcResult requested = mockMvc.perform(post(API + "/memberships/me/settlements")
-						.header("X-Member-UUID", flow.creatorUuid)
+						.header("X-Auth-User-Id", flow.creatorUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{"settlementAmount":%s}
@@ -554,7 +554,7 @@ class MembershipEventStormingIntegrationTest {
 		UUID settlementUuid = uuid(requested, "settlementUuid");
 
 		mockMvc.perform(post(API + "/admin/settlements/" + settlementUuid + "/reject")
-						.header("X-Admin-UUID", flow.adminUuid)
+						.header("X-Auth-User-Id", flow.adminUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{"rejectReason":"계좌 정보 오류"}
@@ -610,7 +610,7 @@ class MembershipEventStormingIntegrationTest {
 		UUID adminUuid = UUID.randomUUID();
 		prepareExplorer(creatorUuid);
 		MvcResult result = mockMvc.perform(post(API + "/memberships/applications")
-						.header("X-Member-UUID", creatorUuid)
+						.header("X-Auth-User-Id", creatorUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(applicationBody()))
 				.andExpect(status().isCreated())
@@ -621,7 +621,7 @@ class MembershipEventStormingIntegrationTest {
 	private Flow approveMembership() throws Exception {
 		Flow flow = applyPendingMembership();
 		mockMvc.perform(post(API + "/admin/memberships/" + flow.membershipUuid + "/approve")
-						.header("X-Admin-UUID", flow.adminUuid))
+						.header("X-Auth-User-Id", flow.adminUuid))
 				.andExpect(status().isOk());
 		return flow;
 	}
@@ -641,7 +641,7 @@ class MembershipEventStormingIntegrationTest {
 
 	private StartedPayment startPayment(Flow flow) throws Exception {
 		MvcResult result = mockMvc.perform(post(API + "/memberships/subscriptions/payments")
-						.header("X-Member-UUID", flow.memberUuid)
+						.header("X-Auth-User-Id", flow.memberUuid)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(creatorBody(flow.creatorUuid)))
 				.andExpect(status().isCreated())

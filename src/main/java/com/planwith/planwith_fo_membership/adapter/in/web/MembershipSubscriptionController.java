@@ -58,7 +58,7 @@ public class MembershipSubscriptionController {
 	// 멤버십 가입 자격 검증
 	@PostMapping("/memberships/subscriptions/validate")
 	public ResponseEntity<ValidateJoinEligibilityResponse> validateJoinEligibility(
-			@RequestHeader("X-Member-UUID") UUID memberUuid,
+			@RequestHeader("X-Auth-User-Id") UUID memberUuid,
 			@Valid @RequestBody ValidateJoinEligibilityRequest request
 	) {
 		log.info(
@@ -87,7 +87,7 @@ public class MembershipSubscriptionController {
 	// 토큰 결제 시작
 	@PostMapping("/memberships/subscriptions/payments")
 	public ResponseEntity<StartTokenPaymentResponse> startTokenPayment(
-			@RequestHeader("X-Member-UUID") UUID memberUuid,
+			@RequestHeader("X-Auth-User-Id") UUID memberUuid,
 			@Valid @RequestBody StartTokenPaymentRequest request
 	) {
 		log.info(
@@ -116,7 +116,7 @@ public class MembershipSubscriptionController {
 	// 멤버십 해지
 	@PostMapping("/memberships/me/subscriptions/{subscriptionUuid}/cancel")
 	public ResponseEntity<CancelSubscriptionResponse> cancelSubscription(
-			@RequestHeader("X-Member-UUID") UUID memberUuid,
+			@RequestHeader("X-Auth-User-Id") UUID memberUuid,
 			@PathVariable UUID subscriptionUuid
 	) {
 		log.info(

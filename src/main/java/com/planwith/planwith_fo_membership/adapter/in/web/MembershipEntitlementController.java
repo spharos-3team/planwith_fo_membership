@@ -33,7 +33,7 @@ public class MembershipEntitlementController {
 	// 멤버십 접근 권한 조회
 	@GetMapping("/memberships/me/entitlement/{creatorUuid}")
 	public ResponseEntity<EntitlementResponse> getMyEntitlement(
-			@RequestHeader("X-Member-UUID") UUID memberUuid,
+			@RequestHeader("X-Auth-User-Id") UUID memberUuid,
 			@PathVariable UUID creatorUuid
 	) {
 		log.info(

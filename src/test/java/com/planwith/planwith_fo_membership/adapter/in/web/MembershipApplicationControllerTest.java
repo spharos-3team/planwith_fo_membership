@@ -62,7 +62,7 @@ class MembershipApplicationControllerTest {
 		);
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/applications/validate")
-						.header("X-Member-UUID", "22222222-2222-2222-2222-222222222222")
+						.header("X-Auth-User-Id", "22222222-2222-2222-2222-222222222222")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isOk())
@@ -87,7 +87,7 @@ class MembershipApplicationControllerTest {
 		);
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/applications")
-						.header("X-Member-UUID", "22222222-2222-2222-2222-222222222222")
+						.header("X-Auth-User-Id", "22222222-2222-2222-2222-222222222222")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -107,7 +107,7 @@ class MembershipApplicationControllerTest {
 	@Test
 	void rejectsNonTokenPriceUnit() throws Exception {
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/applications")
-						.header("X-Member-UUID", "22222222-2222-2222-2222-222222222222")
+						.header("X-Auth-User-Id", "22222222-2222-2222-2222-222222222222")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -123,7 +123,7 @@ class MembershipApplicationControllerTest {
 	@Test
 	void rejectsNonPositivePrice() throws Exception {
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/applications/validate")
-						.header("X-Member-UUID", "22222222-2222-2222-2222-222222222222")
+						.header("X-Auth-User-Id", "22222222-2222-2222-2222-222222222222")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -151,7 +151,7 @@ class MembershipApplicationControllerTest {
 				.thenThrow(new InsufficientMembershipGradeException("Explorer 이상 등급만 멤버십을 개설할 수 있습니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/memberships/applications/validate")
-						.header("X-Member-UUID", "22222222-2222-2222-2222-222222222222")
+						.header("X-Auth-User-Id", "22222222-2222-2222-2222-222222222222")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(validBody()))
 				.andExpect(status().isForbidden())

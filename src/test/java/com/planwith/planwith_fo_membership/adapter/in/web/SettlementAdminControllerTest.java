@@ -61,7 +61,7 @@ class SettlementAdminControllerTest {
 		when(approveSettlementUseCase.approve(any())).thenReturn(result(SettlementStatus.APPROVED, 20_000L, 30_000L, 0L, null));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/admin/settlements/{settlementUuid}/approve", SETTLEMENT_UUID)
-						.header("X-Admin-UUID", ADMIN_UUID))
+						.header("X-Auth-User-Id", ADMIN_UUID))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status").value("APPROVED"))
 				.andExpect(jsonPath("$.availableRevenue").value(20000))
@@ -74,7 +74,7 @@ class SettlementAdminControllerTest {
 		when(rejectSettlementUseCase.reject(any())).thenReturn(result(SettlementStatus.REJECTED, 50_000L, 0L, 0L, "계좌 정보 오류"));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/admin/settlements/{settlementUuid}/reject", SETTLEMENT_UUID)
-						.header("X-Admin-UUID", ADMIN_UUID)
+						.header("X-Auth-User-Id", ADMIN_UUID)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -92,7 +92,7 @@ class SettlementAdminControllerTest {
 		when(paySettlementUseCase.pay(any())).thenReturn(result(SettlementStatus.PAID, 20_000L, 0L, 30_000L, null));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/admin/settlements/{settlementUuid}/pay", SETTLEMENT_UUID)
-						.header("X-Admin-UUID", ADMIN_UUID))
+						.header("X-Auth-User-Id", ADMIN_UUID))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status").value("PAID"))
 				.andExpect(jsonPath("$.availableRevenue").value(20000))
@@ -105,7 +105,7 @@ class SettlementAdminControllerTest {
 				.thenThrow(new SettlementAlreadyProcessedException("신청된 정산만 승인할 수 있습니다."));
 
 		mockMvc.perform(post("/api/planwith-fo-membership/admin/settlements/{settlementUuid}/approve", SETTLEMENT_UUID)
-						.header("X-Admin-UUID", ADMIN_UUID))
+						.header("X-Auth-User-Id", ADMIN_UUID))
 				.andExpect(status().isConflict())
 				.andExpect(jsonPath("$.code").value("SETTLEMENT_ALREADY_PROCESSED"));
 	}
@@ -120,7 +120,7 @@ class SettlementAdminControllerTest {
 	@Test
 	void rejectRequiresReason() throws Exception {
 		mockMvc.perform(post("/api/planwith-fo-membership/admin/settlements/{settlementUuid}/reject", SETTLEMENT_UUID)
-						.header("X-Admin-UUID", ADMIN_UUID)
+						.header("X-Auth-User-Id", ADMIN_UUID)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{

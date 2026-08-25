@@ -42,7 +42,7 @@ class MembershipEntitlementControllerTest {
 
 		mockMvc.perform(get("/api/planwith-fo-membership/memberships/me/entitlement/{creatorUuid}",
 						"22222222-2222-2222-2222-222222222222")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111"))
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.memberUuid").value("11111111-1111-1111-1111-111111111111"))
 				.andExpect(jsonPath("$.creatorUuid").value("22222222-2222-2222-2222-222222222222"))
@@ -61,7 +61,7 @@ class MembershipEntitlementControllerTest {
 
 		mockMvc.perform(get("/api/planwith-fo-membership/memberships/me/entitlement/{creatorUuid}",
 						"22222222-2222-2222-2222-222222222222")
-						.header("X-Member-UUID", "11111111-1111-1111-1111-111111111111"))
+						.header("X-Auth-User-Id", "11111111-1111-1111-1111-111111111111"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.allowed").value(false));
 	}

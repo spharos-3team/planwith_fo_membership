@@ -51,7 +51,7 @@ public class SettlementAdminController {
 	// 정산 승인
 	@PostMapping("/{settlementUuid}/approve")
 	public ResponseEntity<ProcessSettlementResponse> approveSettlement(
-			@RequestHeader("X-Admin-UUID") UUID adminUuid,
+			@RequestHeader("X-Auth-User-Id") UUID adminUuid,
 			@PathVariable UUID settlementUuid
 	) {
 		log.info(
@@ -73,7 +73,7 @@ public class SettlementAdminController {
 	// 정산 거절
 	@PostMapping("/{settlementUuid}/reject")
 	public ResponseEntity<ProcessSettlementResponse> rejectSettlement(
-			@RequestHeader("X-Admin-UUID") UUID adminUuid,
+			@RequestHeader("X-Auth-User-Id") UUID adminUuid,
 			@PathVariable UUID settlementUuid,
 			@Valid @RequestBody RejectSettlementRequest request
 	) {
@@ -100,7 +100,7 @@ public class SettlementAdminController {
 	// 정산 지급 완료
 	@PostMapping("/{settlementUuid}/pay")
 	public ResponseEntity<ProcessSettlementResponse> paySettlement(
-			@RequestHeader("X-Admin-UUID") UUID adminUuid,
+			@RequestHeader("X-Auth-User-Id") UUID adminUuid,
 			@PathVariable UUID settlementUuid
 	) {
 		log.info(
