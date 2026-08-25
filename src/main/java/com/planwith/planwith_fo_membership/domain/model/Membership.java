@@ -142,6 +142,23 @@ public final class Membership {
 		);
 	}
 
+	public Membership changeMonthlyPrice(int nextMonthlyPrice) {
+		if (status != MembershipStatus.APPROVED) {
+			throw new InvalidMembershipStateException("승인된 멤버십만 월 구독 토큰을 변경할 수 있습니다.");
+		}
+		return new Membership(
+				membershipUuid,
+				adminUuid,
+				creatorUuid,
+				membershipName,
+				description,
+				requireMonthlyPrice(nextMonthlyPrice),
+				status,
+				rejectReason,
+				createAt
+		);
+	}
+
 	public boolean isApproved() {
 		return status == MembershipStatus.APPROVED;
 	}

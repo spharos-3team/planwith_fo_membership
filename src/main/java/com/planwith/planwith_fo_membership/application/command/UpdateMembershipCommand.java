@@ -1,9 +1,9 @@
 package com.planwith.planwith_fo_membership.application.command;
 
-import java.util.UUID;
+import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 
 public record UpdateMembershipCommand(
-		UUID membershipUuid,
-		String title
+		CreatorUuid creatorUuid,
+		int monthlyPrice
 ) {
 }

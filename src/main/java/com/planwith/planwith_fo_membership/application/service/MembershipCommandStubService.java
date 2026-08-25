@@ -6,16 +6,13 @@ import org.springframework.stereotype.Service;
 
 import com.planwith.planwith_fo_membership.application.command.CreateMembershipCommand;
 import com.planwith.planwith_fo_membership.application.command.SubscribeMembershipCommand;
-import com.planwith.planwith_fo_membership.application.command.UpdateMembershipCommand;
 import com.planwith.planwith_fo_membership.application.port.in.command.CreateMembershipUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.SubscribeMembershipUseCase;
-import com.planwith.planwith_fo_membership.application.port.in.command.UpdateMembershipUseCase;
 import com.planwith.planwith_fo_membership.domain.exception.UnsupportedMembershipOperationException;
 
 @Service
 public class MembershipCommandStubService implements
 		CreateMembershipUseCase,
-		UpdateMembershipUseCase,
 		SubscribeMembershipUseCase {
 
 	private static final Logger log = LoggerFactory.getLogger(MembershipCommandStubService.class);
@@ -24,12 +21,6 @@ public class MembershipCommandStubService implements
 	public void create(CreateMembershipCommand command) {
 		log.debug("MembershipCommandStubService : create : 멤버십 생성 정책은 후속 이슈에서 구현한다");
 		throw unsupported("멤버십 생성");
-	}
-
-	@Override
-	public void update(UpdateMembershipCommand command) {
-		log.debug("MembershipCommandStubService : update : 멤버십 수정 정책은 후속 이슈에서 구현한다");
-		throw unsupported("멤버십 수정");
 	}
 
 	@Override

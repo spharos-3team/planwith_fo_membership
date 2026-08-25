@@ -12,6 +12,7 @@ public final class MembershipApplicationPolicy {
 	public static final String PRICE_UNIT_TOKEN = "TOKEN";
 	public static final String MIN_OPEN_GRADE_CODE = "EXPLORER";
 	public static final int MIN_OPEN_GRADE_LEVEL = 4;
+	public static final int MIN_MONTHLY_TOKEN_PRICE = 10;
 
 	private static final Set<String> OPENABLE_GRADE_CODES = Set.of(
 			"EXPLORER",
@@ -52,8 +53,10 @@ public final class MembershipApplicationPolicy {
 	}
 
 	public static void requireValidPrice(int monthlyPrice, String priceUnit) {
-		if (!isPositivePrice(monthlyPrice)) {
-			throw new InvalidMembershipPriceException("월 구독 금액은 0보다 커야 합니다.");
+		if (monthlyPrice < MIN_MONTHLY_TOKEN_PRICE) {
+			throw new InvalidMembershipPriceException(
+					"월 구독 토큰은 최소 " + MIN_MONTHLY_TOKEN_PRICE + "토큰부터 설정 가능합니다."
+			);
 		}
 		if (!isTokenPriceUnit(priceUnit)) {
 			throw new InvalidMembershipPriceException("멤버십 가격 단위는 TOKEN 이어야 합니다.");
