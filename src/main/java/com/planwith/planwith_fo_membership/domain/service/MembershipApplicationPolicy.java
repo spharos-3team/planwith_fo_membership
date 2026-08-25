@@ -12,7 +12,7 @@ public final class MembershipApplicationPolicy {
 	public static final String PRICE_UNIT_TOKEN = "TOKEN";
 	public static final String MIN_OPEN_GRADE_CODE = "EXPLORER";
 	public static final int MIN_OPEN_GRADE_LEVEL = 4;
-	public static final int MIN_MONTHLY_TOKEN_PRICE = 10;
+	public static final int MIN_MONTHLY_TOKEN_PRICE = 1;
 
 	private static final Set<String> OPENABLE_GRADE_CODES = Set.of(
 			"EXPLORER",

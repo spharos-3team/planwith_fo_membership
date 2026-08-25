@@ -52,7 +52,7 @@ class UpdateMembershipMonthlyPriceServiceTest {
 	void rejectsPriceBelowMinimum() {
 		membershipPort.save(pending().approve(adminUuid));
 
-		assertThatThrownBy(() -> service.update(new UpdateMembershipCommand(creatorUuid, 9)))
+		assertThatThrownBy(() -> service.update(new UpdateMembershipCommand(creatorUuid, 0)))
 				.isInstanceOf(InvalidMembershipPriceException.class);
 	}
 
