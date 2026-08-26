@@ -21,13 +21,17 @@ import com.planwith.planwith_fo_membership.application.port.in.command.ApplyMemb
 import com.planwith.planwith_fo_membership.application.port.in.command.ValidateMembershipApplicationUseCase;
 import com.planwith.planwith_fo_membership.application.query.ApplyMembershipApplicationResult;
 import com.planwith.planwith_fo_membership.application.query.ValidateMembershipApplicationResult;
+import com.planwith.planwith_fo_membership.config.OpenApiConfig;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @Validated
 @RestController
 @RequestMapping("/api/planwith-fo-membership")
+@SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME)
+@SecurityRequirement(name = OpenApiConfig.GATEWAY_USER_ID_SCHEME)
 public class MembershipApplicationController {
 
 	private static final Logger log = LoggerFactory.getLogger(MembershipApplicationController.class);

@@ -28,12 +28,24 @@ class OpenApiServersIntegrationTests {
 	}
 
 	@Test
-	void apiDocsPublishesHttpBearerSecurityScheme() throws Exception {
+	void apiDocsPublishesGatewayAndDirectAuthSchemes() throws Exception {
 		mockMvc.perform(get("/v3/api-docs"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.type").value("http"))
-				.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.scheme").value("bearer"))
-				.andExpect(jsonPath("$.components.securitySchemes.bearerAuth.bearerFormat").value("JWT"))
-				.andExpect(jsonPath("$.security[0].bearerAuth").exists());
+				.andExpect(jsonPath("$.components.securitySchemes.Bearer.type").value("http"))
+				.andExpect(jsonPath("$.components.securitySchemes.Bearer.scheme").value("bearer"))
+				.andExpect(jsonPath("$.components.securitySchemes.Bearer.bearerFormat").value("JWT"))
+				.andExpect(jsonPath("$.components.securitySchemes['X-Auth-User-Id'].type").value("apiKey"))
+				.andExpect(jsonPath("$.components.securitySchemes['X-Auth-User-Id'].in").value("header"))
+				.andExpect(jsonPath("$.security[0].Bearer").exists())
+				.andExpect(jsonPath("$.security[1]['X-Auth-User-Id']").exists());
+	}
+
+	@Test
+	void apiDocsHidesGatewayIdentityHeaderParameters() throws Exception {
+		mockMvc.perform(get("/v3/api-docs"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath(
+						"$.paths['/api/planwith-fo-membership/memberships/me'].get.parameters[?(@.name=='X-Auth-User-Id')]"
+				).isEmpty());
 	}
 }

@@ -20,14 +20,18 @@ import com.planwith.planwith_fo_membership.application.command.RejectMembershipC
 import com.planwith.planwith_fo_membership.application.port.in.command.ApproveMembershipUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.RejectMembershipUseCase;
 import com.planwith.planwith_fo_membership.application.query.ReviewMembershipResult;
+import com.planwith.planwith_fo_membership.config.OpenApiConfig;
 import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MembershipUuid;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @Validated
 @RestController
 @RequestMapping("/api/planwith-fo-membership/admin/memberships")
+@SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME)
+@SecurityRequirement(name = OpenApiConfig.GATEWAY_USER_ID_SCHEME)
 public class MembershipAdminController {
 
 	private static final Logger log = LoggerFactory.getLogger(MembershipAdminController.class);

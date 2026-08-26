@@ -22,14 +22,18 @@ import com.planwith.planwith_fo_membership.application.port.in.command.ApproveSe
 import com.planwith.planwith_fo_membership.application.port.in.command.PaySettlementUseCase;
 import com.planwith.planwith_fo_membership.application.port.in.command.RejectSettlementUseCase;
 import com.planwith.planwith_fo_membership.application.query.ProcessSettlementResult;
+import com.planwith.planwith_fo_membership.config.OpenApiConfig;
 import com.planwith.planwith_fo_membership.domain.model.vo.AdminUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.SettlementUuid;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 @Validated
 @RestController
 @RequestMapping("/api/planwith-fo-membership/admin/settlements")
+@SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME)
+@SecurityRequirement(name = OpenApiConfig.GATEWAY_USER_ID_SCHEME)
 public class SettlementAdminController {
 
 	private static final Logger log = LoggerFactory.getLogger(SettlementAdminController.class);

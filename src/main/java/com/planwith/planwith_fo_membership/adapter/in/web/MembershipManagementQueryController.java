@@ -26,11 +26,16 @@ import com.planwith.planwith_fo_membership.application.query.ListCreatorSubscrib
 import com.planwith.planwith_fo_membership.application.query.ListJoinedMembershipsQuery;
 import com.planwith.planwith_fo_membership.application.query.MyMembershipResult;
 import com.planwith.planwith_fo_membership.application.query.RevenueResult;
+import com.planwith.planwith_fo_membership.config.OpenApiConfig;
 import com.planwith.planwith_fo_membership.domain.model.vo.CreatorUuid;
 import com.planwith.planwith_fo_membership.domain.model.vo.MemberUuid;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RestController
 @RequestMapping("/api/planwith-fo-membership")
+@SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME)
+@SecurityRequirement(name = OpenApiConfig.GATEWAY_USER_ID_SCHEME)
 public class MembershipManagementQueryController {
 
 	private static final Logger log = LoggerFactory.getLogger(MembershipManagementQueryController.class);
