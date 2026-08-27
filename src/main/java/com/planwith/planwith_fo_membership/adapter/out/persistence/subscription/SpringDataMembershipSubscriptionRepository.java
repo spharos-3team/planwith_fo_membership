@@ -75,4 +75,17 @@ interface SpringDataMembershipSubscriptionRepository extends JpaRepository<Membe
 			SubscriptionStatus status,
 			Instant startedAt
 	);
+
+	@Query("""
+			select membership.creatorUuid as creatorUuid, count(subscription) as subscriberCount
+			from MembershipSubscriptionJpaEntity subscription, MembershipJpaEntity membership
+			where subscription.membershipUuid = membership.membershipUuid
+				and membership.creatorUuid in :creatorUuids
+				and subscription.status = :status
+			group by membership.creatorUuid
+			""")
+	List<CreatorSubscriberCountRow> countActiveByCreatorUuids(
+			@Param("creatorUuids") List<UUID> creatorUuids,
+			@Param("status") SubscriptionStatus status
+	);
 }

@@ -61,7 +61,8 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
 	private static boolean requiresAuthentication(String requestUri) {
 		return requestUri.startsWith(API_PREFIX)
 				&& !requestUri.equals(API_PREFIX + "/deploy-check")
-				&& !requestUri.equals(API_PREFIX + "/login");
+				&& !requestUri.equals(API_PREFIX + "/login")
+				&& !requestUri.equals(API_PREFIX + "/memberships/creators/subscriber-counts");
 	}
 
 	private static boolean hasAdminRole(String roles) {
