@@ -23,6 +23,19 @@ class GatewayAuthenticationFilterTest {
 	}
 
 	@Test
+	void allowsUnauthenticatedSubscriberCountQuery() throws Exception {
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		filter.doFilter(
+				request("/api/planwith-fo-membership/memberships/creators/subscriber-counts"),
+				response,
+				new MockFilterChain()
+		);
+
+		assertThat(response.getStatus()).isEqualTo(200);
+	}
+
+	@Test
 	void rejectsUnauthenticatedMembershipRequest() throws Exception {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 

@@ -16,19 +16,19 @@ spring:
           time_zone: UTC
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      host: ${REDIS_HOST:}
+      port: ${REDIS_PORT:}
       password: ${REDIS_PASSWORD:}
       connect-timeout: ${REDIS_CONNECT_TIMEOUT:2s}
       timeout: ${REDIS_TIMEOUT:2s}
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:}
     producer:
       acks: all
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       properties:
-        "[spring.json.add.type.headers]": false
+        "[spring.json.add.type.headers]": true
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP:membership-service}
       auto-offset-reset: earliest
@@ -36,7 +36,7 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     listener:
       ack-mode: record
-      auto-startup: ${MEMBERSHIP_KAFKA_CONSUMER_ENABLED:false}
+      auto-startup: ${MEMBERSHIP_KAFKA_CONSUMER_ENABLED:true}
 
 server:
   address: ${SERVER_ADDRESS:0.0.0.0}
@@ -57,9 +57,9 @@ management:
         include: health,info
   health:
     kafka:
-      enabled: false
+      enabled: true
     redis:
-      enabled: false
+      enabled: true
 
 springdoc:
   api-docs:
@@ -82,7 +82,7 @@ membership:
   gateway-auth:
     enabled: ${MEMBERSHIP_GATEWAY_AUTH_ENABLED:true}
   kafka:
-    consumer-enabled: ${MEMBERSHIP_KAFKA_CONSUMER_ENABLED:false}
+    consumer-enabled: ${MEMBERSHIP_KAFKA_CONSUMER_ENABLED:true}
     topics:
       token-deduction-requested: ${MEMBERSHIP_TOPIC_TOKEN_DEDUCTION_REQUESTED:planwith.token.deduction-requested}
       token-deduction-succeeded: ${MEMBERSHIP_TOPIC_TOKEN_DEDUCTION_SUCCEEDED:planwith.token.deduction-succeeded}
@@ -96,7 +96,7 @@ membership:
       settlement-requested: ${MEMBERSHIP_TOPIC_SETTLEMENT_REQUESTED:planwith.membership.settlement-requested}
       settlement-completed: ${MEMBERSHIP_TOPIC_SETTLEMENT_COMPLETED:planwith.membership.settlement-completed}
   outbox:
-    enabled: ${MEMBERSHIP_OUTBOX_ENABLED:false}
+    enabled: ${MEMBERSHIP_OUTBOX_ENABLED:true}
     relay-batch-size: ${MEMBERSHIP_OUTBOX_RELAY_BATCH_SIZE:50}
     relay-interval: ${MEMBERSHIP_OUTBOX_RELAY_INTERVAL:5s}
     relay-initial-delay: ${MEMBERSHIP_OUTBOX_RELAY_INITIAL_DELAY:5s}
@@ -109,6 +109,6 @@ membership:
     key-prefix: ${MEMBERSHIP_CACHE_KEY_PREFIX:membership:entitlement}
     ttl: ${MEMBERSHIP_CACHE_TTL:10m}
   expire:
-    scheduler-enabled: ${MEMBERSHIP_EXPIRE_SCHEDULER_ENABLED:false}
+    scheduler-enabled: ${MEMBERSHIP_EXPIRE_SCHEDULER_ENABLED:true}
     interval: ${MEMBERSHIP_EXPIRE_INTERVAL:1h}
     initial-delay: ${MEMBERSHIP_EXPIRE_INITIAL_DELAY:1m}

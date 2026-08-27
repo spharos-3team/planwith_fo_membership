@@ -1,14 +1,19 @@
 package com.planwith.planwith_fo_membership.adapter.out.persistence.subscription;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.planwith.planwith_fo_membership.application.port.out.CountActiveSubscribersPort;
 import com.planwith.planwith_fo_membership.application.port.out.LoadSubscriptionPort;
 import com.planwith.planwith_fo_membership.application.port.out.SaveSubscriptionPort;
 import com.planwith.planwith_fo_membership.application.query.JoinedMembershipResult;
@@ -23,7 +28,7 @@ import com.planwith.planwith_fo_membership.domain.service.MembershipApplicationP
 import com.planwith.planwith_fo_membership.domain.service.SubscriptionPolicy;
 
 @Component
-public class MembershipSubscriptionPersistenceAdapter implements LoadSubscriptionPort, SaveSubscriptionPort {
+public class MembershipSubscriptionPersistenceAdapter implements LoadSubscriptionPort, SaveSubscriptionPort, CountActiveSubscribersPort {
 
 	private static final Logger log = LoggerFactory.getLogger(MembershipSubscriptionPersistenceAdapter.class);
 
@@ -76,6 +81,20 @@ public class MembershipSubscriptionPersistenceAdapter implements LoadSubscriptio
 				.stream()
 				.map(MembershipSubscriptionJpaEntity::toDomain)
 				.toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Map<UUID, Long> countActiveByCreatorUuids(Collection<UUID> creatorUuids) {
+		if (creatorUuids == null || creatorUuids.isEmpty()) {
+			return Map.of();
+		}
+		return repository.countActiveByCreatorUuids(List.copyOf(creatorUuids), SubscriptionStatus.ACTIVE).stream()
+				.filter(row -> row.getCreatorUuid() != null)
+				.collect(Collectors.toUnmodifiableMap(
+						CreatorSubscriberCountRow::getCreatorUuid,
+						row -> row.getSubscriberCount() == null ? 0L : row.getSubscriberCount()
+				));
 	}
 
 	@Override
